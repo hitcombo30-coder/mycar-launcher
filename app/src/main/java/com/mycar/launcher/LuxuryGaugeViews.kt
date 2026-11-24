@@ -85,7 +85,6 @@ class LuxuryAnalogClockView @JvmOverloads constructor(
         val hourAngle = (hour + minute / 60f) * 30f - 90f
         val minAngle = (minute + second / 60f) * 6f - 90f
 
-        // Jarum jam
         val hRad = Math.toRadians(hourAngle.toDouble())
         handPaint.color = tickColor
         handPaint.strokeWidth = 5f
@@ -97,7 +96,6 @@ class LuxuryAnalogClockView @JvmOverloads constructor(
             handPaint
         )
 
-        // Jarum minit
         val mRad = Math.toRadians(minAngle.toDouble())
         handPaint.color = handAccentColor
         handPaint.strokeWidth = 3.5f
@@ -183,18 +181,15 @@ class LuxurySpeedGaugeView @JvmOverloads constructor(
         val right = cx + radius
         val bottom = cy + radius
 
-        // Latar lengkungan meter
         arcPaint.color = trackColor
         arcPaint.strokeWidth = 7f
         canvas.drawArc(left, top, right, bottom, startAngle, sweepTotal, false, arcPaint)
 
-        // Lengkungan aktif ikut kelajuan semasa
         val ratio = (speedKmh / maxScaleKmh).coerceIn(0f, 1f)
         arcPaint.color = activeArcColor
         arcPaint.strokeWidth = 7f
         canvas.drawArc(left, top, right, bottom, startAngle, sweepTotal * ratio, false, arcPaint)
 
-        // Senggatan meter
         val ticks = 10
         for (i in 0..ticks) {
             val tRatio = i.toFloat() / ticks
@@ -213,7 +208,6 @@ class LuxurySpeedGaugeView @JvmOverloads constructor(
             )
         }
 
-        // Jarum penunjuk kelajuan
         val needleDeg = startAngle + (sweepTotal * ratio)
         val nRad = Math.toRadians(needleDeg.toDouble())
         needlePaint.color = needleColor
