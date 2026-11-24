@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="05:35"
+                    android:text="05:44"
                     android:textColor="@color/night_text"
                     android:textSize="54sp"
                     android:textStyle="bold" />
@@ -171,7 +171,9 @@
                     android:textSize="12sp"
                     android:textStyle="bold" />
             </LinearLayout>
-      <LinearLayout
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/telemetryCard"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -204,7 +206,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="none"
                     android:maxLines="1"
-                    android:text="120"
+                    android:text="0"
                     android:textColor="@color/night_accent"
                     android:textSize="52sp"
                     android:textStyle="bold" />
@@ -295,78 +297,6 @@
                     android:textSize="10sp" />
             </LinearLayout>
         </LinearLayout>
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="0.9"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvMaxLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="MAX SPEED"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvMaxSub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0"
-                    android:textColor="@color/night_text"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvMaxUnit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="KM/H"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="10sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="0.9"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvAvgLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="AVG SPEED"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAvgSub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0.0"
-                    android:textColor="@color/night_accent"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAvgUnit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="KM/H"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="10sp" />
-            </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -445,60 +375,4 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="[PAUSE] YTM LIST #1 - Highway Breeze - Chill Acoustic"
-                android:textColor="@color/night_text"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvPlayNextList"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Next: 1. Synthwave Cruise  |  2. Lo-Fi Beats"
-                android:textColor="@color/night_subtext"
-                android:textSize="12sp" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btnNextList"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:text="Next List"
-            android:textAllCaps="false" />
-
-        <Button
-            android:id="@+id/btnPlayPause"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_marginStart="8dp"
-            android:text="Play"
-            android:textAllCaps="false" />
-
-        <Button
-            android:id="@+id/btnNextTrack"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_marginStart="8dp"
-            android:text="Next"
-            android:textAllCaps="false" />
-
-        <Button
-            android:id="@+id/btnSwitchSource"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_marginStart="8dp"
-            android:text="Radio"
-            android:textAllCaps="false" />
-
-        <Button
-            android:id="@+id/btnRadioApp"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_marginStart="8dp"
-            android:text="Radio App"
-            android:textAllCaps="false" />
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+                android:textColor
