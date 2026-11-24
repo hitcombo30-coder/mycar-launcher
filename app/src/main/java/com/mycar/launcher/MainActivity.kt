@@ -15,9 +15,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.media.AudioAttributes
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -47,8 +45,6 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
-    private data class RadioChannel(val label: String, val streamUrl: String)
-
     private lateinit var binding: ActivityMainBinding
     private val handler = Handler(Looper.getMainLooper())
     private val executor = Executors.newSingleThreadExecutor()
@@ -58,7 +54,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var lastLuxValue: Float? = null
     private var headlightSignalNight: Boolean? = null
 
-    private var mediaPlayer: MediaPlayer? = null
     private var mapLoadedOnce = false
 
     private var isNightMode = true
@@ -87,22 +82,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             "Midnight Express",
             "Smooth Lounge",
             "City Lights Mix"
+        ),
+        listOf(
+            "North-South Highway Mix",
+            "Sunset Cruiser",
+            "Deep Focus Drive",
+            "After Midnight"
         )
     )
 
-    private val radioPlaylists = listOf(
-        listOf(
-            RadioChannel("Sinar FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/SINAR_FMAAC.aac"),
-            RadioChannel("ERA FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/ERA_FMAAC.aac"),
-            RadioChannel("HOT FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/HOTFMAAC.aac"),
-            RadioChannel("Kool 101 (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/KOOLFMAAC.aac")
-        ),
-        listOf(
-            RadioChannel("Hitz FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/HITZ_FMAAC.aac"),
-            RadioChannel("Mix FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/MIX_FMAAC.aac"),
-            RadioChannel("Lite FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/LITE_FMAAC.aac"),
-            RadioChannel("Suria FM (Malaysia)", "https://playerservices.streamtheworld.com/api/livestream-redirect/SURIA_FMAAC.aac")
-        )
+    private val radioAntennaStations = listOf(
+        "FM Radio (Antenna)",
+        "FM 96.4 (Antenna)",
+        "FM 102.8 (Antenna)",
+        "FM 88.9 (Antenna)"
     )
 
     private val illuminationReceiver = object : BroadcastReceiver() {
@@ -162,6 +155,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val now = Date()
             binding.tvBigClock.text = sdfTime.format(now)
             binding.tvDateLabel.text = "${sdfDate.format(now)} - ${binding.tvLocationHeader.text.removePrefix("Lokasi: ")}"
+            binding.analogClockView.invalidate()
 
             val currentSpeed = binding.tvSpeed.text.toString().toIntOrNull() ?: 0
             if (currentSpeed > 0) {
@@ -242,7 +236,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                   width: 0; height: 0;
                   border-left: 11px solid transparent;
                   border-right: 11px solid transparent;
-                  border-bottom: 24px solid #38BDF8;
+                  border-bottom: 24px solid #E5C158;
                   filter: drop-shadow(0 0 4px rgba(0,0,0,0.85));
                   transform-origin: center center;
                 }
@@ -337,8 +331,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun updateSyncStatus() {
         val online = isNetworkAvailable()
         val modeTag = when {
-            headlightSignalNight == true -> "LAMP NIGHT"
-            headlightSignalNight == false -> "LAMP DAY"
+            headlightSignalNight == true -> "LAMP ON (DARK)"
+            headlightSignalNight == false -> "LAMP OFF (BRIGHT)"
             isNightMode -> "AUTO NIGHT"
             else -> "AUTO DAY"
         }
@@ -413,8 +407,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     val temp = json?.optDouble("temperature_2m", Double.NaN) ?: Double.NaN
                     val code = json?.optInt("weather_code", -1) ?: -1
                     val desc = weatherCodeToLabel(code)
+                    val icon = weatherCodeToIcon(code)
                     if (!temp.isNaN()) {
                         runOnUiThread {
+                            binding.tvWeatherIcon.text = icon
                             binding.tvWeatherTemp.text = "${Math.round(temp)}°C"
                             binding.tvWeatherDesc.text = desc
                         }
@@ -424,6 +420,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             } catch (_: Exception) {
             }
         }
+    }
+
+    private fun weatherCodeToIcon(code: Int): String = when (code) {
+        0 -> "☀"
+        1, 2 -> "⛅"
+        3 -> "☁"
+        45, 48 -> "🌫"
+        51, 53, 55, 61, 63, 65 -> "🌧"
+        80, 81, 82 -> "🌦"
+        95, 96, 99 -> "⛈"
+        else -> "✦"
     }
 
     private fun weatherCodeToLabel(code: Int): String = when (code) {
@@ -439,8 +446,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun currentYtmList(): List<String> = ytmPlaylists[playlistIndex % ytmPlaylists.size]
 
-    private fun currentRadioList(): List<RadioChannel> = radioPlaylists[playlistIndex % radioPlaylists.size]
-
     private fun setupControls() {
         binding.btnRestoreHome.setOnClickListener { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) }
         binding.btnApps.setOnClickListener { openIconAppsGridDialog() }
@@ -450,9 +455,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         binding.btnPlayPause.setOnClickListener {
-            isPlaying = !isPlaying
-            applyPlaybackState()
-            updateMusicQueueUi()
+            togglePlayPauseYtm()
+        }
+
+        binding.btnPlayPause.setOnLongClickListener {
+            holdPlayYtm()
+            true
         }
 
         binding.btnNextTrack.setOnClickListener {
@@ -460,108 +468,82 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         binding.btnSwitchSource.setOnClickListener {
-            isRadioMode = !isRadioMode
-            playlistIndex = 0
+            switchToRadioOrYtm()
+        }
+    }
+
+    private fun switchToRadioOrYtm() {
+        if (!isRadioMode) {
+            isRadioMode = true
+            isPlaying = true
             trackIndex = 0
-            applyPlaybackState()
-            updateMusicQueueUi()
-        }
-
-        binding.btnRadioApp.setOnClickListener {
-            launchInstalledMalaysiaRadioApp()
-        }
-    }
-
-    private fun applyPlaybackState() {
-        if (isRadioMode) {
             sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
-            if (isPlaying) {
-                playCurrentRadioStream()
-            } else {
-                stopRadioStream()
-            }
+            updateMusicQueueUi()
+            launchCarAntennaRadio()
         } else {
-            stopRadioStream()
-            sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
+            isRadioMode = false
+            isPlaying = true
+            updateMusicQueueUi()
+            holdPlayYtm()
         }
     }
 
-    private fun playCurrentRadioStream() {
-        val list = currentRadioList()
-        val station = list[trackIndex % list.size]
-        stopRadioStream()
-        try {
-            mediaPlayer = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-                )
-                setDataSource(station.streamUrl)
-                setOnPreparedListener { start() }
-                setOnErrorListener { _, _, _ ->
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity, "Stream radio gagal: ${station.label}", Toast.LENGTH_SHORT).show()
-                    }
-                    true
-                }
-                prepareAsync()
-            }
-        } catch (_: Exception) {
-        }
-    }
-
-    private fun stopRadioStream() {
-        try {
-            mediaPlayer?.stop()
-        } catch (_: Exception) {
-        }
-        try {
-            mediaPlayer?.release()
-        } catch (_: Exception) {
-        }
-        mediaPlayer = null
-    }
-
-    private fun launchInstalledMalaysiaRadioApp() {
+    private fun launchCarAntennaRadio() {
         val mainIntent = Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
         val resolved = packageManager.queryIntentActivities(mainIntent, 0)
         val radioApp = resolved.firstOrNull { info ->
             val label = info.loadLabel(packageManager).toString().lowercase()
             val pkg = info.activityInfo.packageName.lowercase()
-            label.contains("syok") || label.contains("radio") || label.contains("fm") ||
-                pkg.contains("syok") || pkg.contains("radio")
+            label.contains("radio") || label.contains("fm") || pkg.contains("radio") || pkg.contains("fm")
         }
         if (radioApp != null) {
-            stopRadioStream()
-            isPlaying = false
-            updateMusicQueueUi()
             val launch = packageManager.getLaunchIntentForPackage(radioApp.activityInfo.packageName)
             if (launch != null) {
                 startActivity(launch)
                 return
             }
         }
-        Toast.makeText(this, "App Radio Malaysia tidak dijumpai di senarai app", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Mod Radio (Antenna) aktif", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun holdPlayYtm() {
+        isRadioMode = false
+        isPlaying = true
+        sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
+        updateMusicQueueUi()
+        val ytmIntent = packageManager.getLaunchIntentForPackage("com.google.android.apps.youtube.music")
+            ?: packageManager.getLaunchIntentForPackage("app.revanced.android.apps.youtube.music")
+        if (ytmIntent != null) {
+            ytmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            startActivity(ytmIntent)
+        }
+    }
+
+    private fun togglePlayPauseYtm() {
+        isRadioMode = false
+        isPlaying = !isPlaying
+        sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
+        updateMusicQueueUi()
     }
 
     private fun advanceNextPlaylist() {
-        val count = if (isRadioMode) radioPlaylists.size else ytmPlaylists.size
-        playlistIndex = (playlistIndex + 1) % count
+        isRadioMode = false
+        playlistIndex = (playlistIndex + 1) % ytmPlaylists.size
         trackIndex = 0
         isPlaying = true
-        applyPlaybackState()
+        sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
         updateMusicQueueUi()
     }
 
     private fun advanceNextTrack() {
-        val size = if (isRadioMode) currentRadioList().size else currentYtmList().size
-        if (size > 0) {
-            trackIndex = (trackIndex + 1) % size
+        if (isRadioMode) {
+            trackIndex = (trackIndex + 1) % radioAntennaStations.size
+        } else {
+            val queue = currentYtmList()
+            trackIndex = (trackIndex + 1) % queue.size
+            isPlaying = true
+            sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
         }
-        isPlaying = true
-        applyPlaybackState()
         updateMusicQueueUi()
     }
 
@@ -572,18 +554,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 true
             }
             KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
-                val size = if (isRadioMode) currentRadioList().size else currentYtmList().size
-                if (size > 0) {
-                    trackIndex = (trackIndex - 1 + size) % size
-                }
-                applyPlaybackState()
+                val queue = currentYtmList()
+                trackIndex = (trackIndex - 1 + queue.size) % queue.size
+                isRadioMode = false
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
                 updateMusicQueueUi()
                 true
             }
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                isPlaying = !isPlaying
-                applyPlaybackState()
-                updateMusicQueueUi()
+                togglePlayPauseYtm()
                 true
             }
             else -> super.onKeyDown(keyCode, event)
@@ -599,11 +578,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun updateMusicQueueUi() {
         val stateIcon = if (isPlaying) "PLAY" else "PAUSE"
         if (isRadioMode) {
-            val queue = currentRadioList()
-            val cur = queue[trackIndex % queue.size].label
-            val n1 = queue[(trackIndex + 1) % queue.size].label
-            val n2 = queue[(trackIndex + 2) % queue.size].label
-            binding.tvTrack.text = "[$stateIcon] RADIO LIST #${(playlistIndex % radioPlaylists.size) + 1} - $cur"
+            val cur = radioAntennaStations[trackIndex % radioAntennaStations.size]
+            val n1 = radioAntennaStations[(trackIndex + 1) % radioAntennaStations.size]
+            val n2 = radioAntennaStations[(trackIndex + 2) % radioAntennaStations.size]
+            binding.tvTrack.text = "[$stateIcon] RADIO ANT - $cur"
             binding.tvPlayNextList.text = "Next: 1. $n1  |  2. $n2"
             binding.btnSwitchSource.text = "YTM"
         } else {
@@ -621,49 +599,65 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun updateTelemetryUi(speedKmh: Int) {
         val avgKmh = if (movingSeconds > 0) (tripKm / (movingSeconds / 3600.0)) else 0.0
         binding.tvSpeed.text = speedKmh.toString()
+        binding.speedGaugeView.speedKmh = speedKmh.toFloat()
         binding.tvMaxSub.text = maxSpeedKmh.toString()
         binding.tvAvgSub.text = String.format(Locale.getDefault(), "%.1f", avgKmh)
     }
 
-    private fun styleCard(view: View, cardColor: Int, borderColor: Int) {
+    private fun styleGlassCard(view: View, fillColor: Int, strokeColor: Int, radiusDp: Float = 18f) {
         val gd = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadius = 16f * resources.displayMetrics.density
-            setColor(cardColor)
-            setStroke((1f * resources.displayMetrics.density).toInt(), borderColor)
+            cornerRadius = radiusDp * resources.displayMetrics.density
+            setColor(fillColor)
+            setStroke((1.2f * resources.displayMetrics.density).toInt(), strokeColor)
         }
         view.background = gd
     }
 
     private fun applyTheme() {
         val bgColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_bg else R.color.day_bg)
-        val cardColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_card else R.color.day_card)
-        val borderColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_border else R.color.day_border)
         val textColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_text else R.color.day_text)
         val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
-        val accentColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_accent else R.color.day_accent)
-        val pillColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_pill else R.color.day_pill)
+        val accentColor = if (isNightMode) 0xFFE5C158.toInt() else 0xFFB45309.toInt()
+
+        val glassCardFill = if (isNightMode) 0xCC111827.toInt() else 0xE6FFFDF7.toInt()
+        val glassBadgeFill = if (isNightMode) 0xB31E293B.toInt() else 0xD9FEF3C7.toInt()
+        val glassBtnFill = if (isNightMode) 0x99263248.toInt() else 0xCCFDE68A.toInt()
+        val glassStroke = if (isNightMode) 0x66E5C158.toInt() else 0x77B45309.toInt()
 
         binding.rootLayout.setBackgroundColor(bgColor)
-        styleCard(binding.clockWeatherCard, cardColor, borderColor)
-        styleCard(binding.telemetryCard, cardColor, borderColor)
-        styleCard(binding.mapCard, cardColor, borderColor)
-        styleCard(binding.musicCard, cardColor, borderColor)
+        binding.ivIslamicBg.alpha = if (isNightMode) 0.45f else 0.22f
 
-        val pillBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 999f
-            setColor(pillColor)
-        }
-        binding.tvStatusPill.background = pillBg
+        binding.analogClockView.ringColor = glassStroke
+        binding.analogClockView.tickColor = textColor
+        binding.analogClockView.handAccentColor = accentColor
+
+        binding.speedGaugeView.trackColor = glassStroke
+        binding.speedGaugeView.activeArcColor = accentColor
+        binding.speedGaugeView.needleColor = textColor
+
+        styleGlassCard(binding.clockWeatherCard, glassCardFill, glassStroke, 18f)
+        styleGlassCard(binding.telemetryCard, glassCardFill, glassStroke, 18f)
+        styleGlassCard(binding.mapCard, glassCardFill, glassStroke, 18f)
+        styleGlassCard(binding.musicCard, glassCardFill, glassStroke, 18f)
+
+        styleGlassCard(binding.weatherBadgeBox, glassBadgeFill, glassStroke, 16f)
+        styleGlassCard(binding.speedGlassBox, glassBadgeFill, glassStroke, 16f)
+        styleGlassCard(binding.tvStatusPill, glassBadgeFill, glassStroke, 24f)
+
+        styleGlassCard(binding.btnRestoreHome, glassBtnFill, glassStroke, 12f)
+        styleGlassCard(binding.btnApps, glassBtnFill, glassStroke, 12f)
+        styleGlassCard(binding.btnNextList, glassBtnFill, glassStroke, 12f)
+        styleGlassCard(binding.btnPlayPause, glassBtnFill, glassStroke, 12f)
+        styleGlassCard(binding.btnNextTrack, glassBtnFill, glassStroke, 12f)
+        styleGlassCard(binding.btnSwitchSource, glassBtnFill, glassStroke, 12f)
 
         binding.tvBrand.setTextColor(accentColor)
-        binding.tvCardClockTitle.setTextColor(accentColor)
         binding.tvBigClock.setTextColor(textColor)
         binding.tvDateLabel.setTextColor(subColor)
-        binding.tvWeatherIcon.setTextColor(subColor)
-        binding.tvWeatherTemp.setTextColor(accentColor)
-        binding.tvWeatherDesc.setTextColor(textColor)
+        binding.tvWeatherIcon.setTextColor(accentColor)
+        binding.tvWeatherTemp.setTextColor(textColor)
+        binding.tvWeatherDesc.setTextColor(subColor)
         binding.tvSpeedLabel.setTextColor(subColor)
         binding.tvSpeed.setTextColor(accentColor)
         binding.tvSpeedUnit.setTextColor(subColor)
@@ -707,7 +701,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopRadioStream()
         handler.removeCallbacks(clockRunnable)
         executor.shutdown()
     }
