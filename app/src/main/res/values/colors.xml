@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="day_bg">#F3F5F8</color>
+    <color name="day_card">#FFFFFF</color>
+    <color name="day_text">#111827</color>
+    <color name="day_subtext">#4B5563</color>
+    <color name="day_accent">#0F766E</color>
+
+    <color name="night_bg">#090D14</color>
+    <color name="night_card">#111824</color>
+    <color name="night_text">#E5E7EB</color>
+    <color name="night_subtext">#9CA3AF</color>
+    <color name="night_accent">#38BDF8</color>
+</resources>
