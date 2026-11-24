@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/night_bg"
-    android:padding="14dp">
+    android:padding="12dp">
 
     <ImageView
         android:id="@+id/ivIslamicBg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:alpha="0.45"
-        android:contentDescription="Islamic Pattern Background"
+        android:alpha="0.72"
+        android:contentDescription="Islamic Geometric Pattern Background"
         android:scaleType="centerCrop"
         android:src="@drawable/bg_islamic_pattern"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -32,11 +32,11 @@
 
         <ImageView
             android:id="@+id/ivBrandLogo"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@drawable/bg_glass_badge"
             android:contentDescription="MYCAR Logo"
-            android:padding="4dp"
+            android:padding="5dp"
             android:src="@drawable/ic_car_logo" />
 
         <TextView
@@ -44,10 +44,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:letterSpacing="0.2"
+            android:letterSpacing="0.18"
             android:text="MYCAR"
             android:textColor="@color/night_accent"
-            android:textSize="19sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
@@ -58,7 +58,7 @@
             android:background="@drawable/bg_glass_badge"
             android:paddingHorizontal="12dp"
             android:paddingVertical="6dp"
-            android:text="LAMP SYNC - BT/NET OK"
+            android:text="LAMP SYNC - READY"
             android:textColor="@color/night_text"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -97,12 +97,12 @@
         android:id="@+id/leftCluster"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/musicCard"
         app:layout_constraintEnd_toStartOf="@id/mapCard"
-        app:layout_constraintHorizontal_weight="1.15"
+        app:layout_constraintHorizontal_weight="1.2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topBar">
 
@@ -110,43 +110,55 @@
             android:id="@+id/clockWeatherCard"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1.22"
+            android:layout_weight="1.15"
             android:background="@drawable/bg_glass_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="14dp">
-
-            <com.mycar.launcher.LuxuryAnalogClockView
-                android:id="@+id/analogClockView"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_marginEnd="10dp" />
+            android:padding="12dp">
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.15"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:layout_weight="1.35"
+                android:background="@drawable/bg_glass_badge"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="10dp">
 
-                <TextView
-                    android:id="@+id/tvBigClock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="06:22"
-                    android:textColor="@color/night_text"
-                    android:textSize="48sp"
-                    android:textStyle="bold" />
+                <com.mycar.launcher.LuxuryAnalogClockView
+                    android:id="@+id/analogClockView"
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
+                    android:layout_marginEnd="10dp" />
 
-                <TextView
-                    android:id="@+id/tvDateLabel"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:text="Wed, 25 Nov - Kuantan"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvBigClock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:text="06:45"
+                        android:textColor="@color/night_text"
+                        android:textSize="54sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDateLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="Wed, 25 Nov - Kuantan"
+                        android:textColor="@color/night_subtext"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -156,9 +168,9 @@
                 android:layout_marginStart="10dp"
                 android:layout_weight="0.95"
                 android:background="@drawable/bg_glass_badge"
-                android:gravity="end|center_vertical"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:padding="14dp">
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/tvWeatherIcon"
@@ -166,16 +178,17 @@
                     android:layout_height="wrap_content"
                     android:text="🌦"
                     android:textColor="@color/night_accent"
-                    android:textSize="22sp" />
+                    android:textSize="36sp" />
 
                 <TextView
                     android:id="@+id/tvWeatherTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="2dp"
+                    android:maxLines="1"
                     android:text="--°C"
                     android:textColor="@color/night_text"
-                    android:textSize="34sp"
+                    android:textSize="40sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -183,10 +196,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:gravity="end"
+                    android:gravity="center"
+                    android:maxLines="1"
                     android:text="Syncing..."
                     android:textColor="@color/night_subtext"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -195,8 +209,8 @@
             android:id="@+id/telemetryCard"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="12dp"
-            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1.15"
             android:background="@drawable/bg_glass_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -206,7 +220,7 @@
                 android:id="@+id/speedGlassBox"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1.65"
+                android:layout_weight="1.75"
                 android:background="@drawable/bg_glass_badge"
                 android:padding="6dp">
 
@@ -228,7 +242,7 @@
                         android:letterSpacing="0.14"
                         android:text="SPEED"
                         android:textColor="@color/night_subtext"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -239,17 +253,17 @@
                         android:maxLines="1"
                         android:text="0"
                         android:textColor="@color/night_accent"
-                        android:textSize="48sp"
+                        android:textSize="58sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvSpeedUnit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:letterSpacing="0.1"
+                        android:letterSpacing="0.12"
                         android:text="KM/H"
                         android:textColor="@color/night_subtext"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </FrameLayout>
@@ -258,7 +272,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
-                android:layout_weight="0.8"
+                android:layout_weight="0.78"
                 android:background="@drawable/bg_glass_badge"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -271,18 +285,18 @@
                     android:maxLines="1"
                     android:text="MAX"
                     android:textColor="@color/night_subtext"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvMaxSub"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="4dp"
                     android:maxLines="1"
                     android:text="0"
                     android:textColor="@color/night_text"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -291,14 +305,14 @@
                     android:layout_height="wrap_content"
                     android:text="KM/H"
                     android:textColor="@color/night_subtext"
-                    android:textSize="9sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="8dp"
-                android:layout_weight="0.8"
+                android:layout_weight="0.78"
                 android:background="@drawable/bg_glass_badge"
                 android:gravity="center"
                 android:orientation="vertical"
@@ -311,18 +325,18 @@
                     android:maxLines="1"
                     android:text="AVG"
                     android:textColor="@color/night_subtext"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvAvgSub"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="4dp"
                     android:maxLines="1"
                     android:text="0.0"
                     android:textColor="@color/night_accent"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -331,7 +345,7 @@
                     android:layout_height="wrap_content"
                     android:text="KM/H"
                     android:textColor="@color/night_subtext"
-                    android:textSize="9sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -340,7 +354,7 @@
         android:id="@+id/mapCard"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/bg_glass_card"
         android:orientation="vertical"
         android:padding="12dp"
@@ -356,7 +370,7 @@
             android:layout_height="wrap_content"
             android:text="◈ OpenStreetMap Live"
             android:textColor="@color/night_text"
-            android:textSize="14sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <TextView
@@ -366,9 +380,9 @@
             android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Lokasi: Mengesan GPS..."
+            android:text="Location: Detecting location..."
             android:textColor="@color/night_subtext"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
 
         <WebView
             android:id="@+id/osmWebView"
@@ -382,7 +396,7 @@
         android:id="@+id/musicCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/bg_glass_card"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -398,7 +412,7 @@
             android:layout_marginEnd="12dp"
             android:background="@drawable/bg_glass_badge"
             android:contentDescription="Media Source"
-            android:padding="4dp"
+            android:padding="5dp"
             android:src="@drawable/ic_car_logo" />
 
         <LinearLayout
