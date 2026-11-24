@@ -18,6 +18,7 @@ import android.location.LocationManager
 import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -66,53 +67,29 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var currentLon: Double? = null
 
     private val ytmPlaylists = listOf(
-        listOf(
-            "Highway Breeze - Chill Acoustic",
-            "Synthwave Cruise",
-            "Lo-Fi Beats",
-            "Night Drive"
-        ),
-        listOf(
-            "Pantai Timur Acoustic",
-            "Midnight Express",
-            "Smooth Lounge",
-            "City Lights Mix"
-        )
+        listOf("Highway Breeze - Chill Acoustic", "Synthwave Cruise", "Lo-Fi Beats", "Night Drive"),
+        listOf("Pantai Timur Acoustic", "Midnight Express", "Smooth Lounge", "City Lights Mix")
     )
 
     private val radioPlaylists = listOf(
-        listOf(
-            "FM 96.4 - Kuantan Drive Radio",
-            "FM 102.8 - Coastal Hits",
-            "FM 88.9 - Chill & Jazz FM",
-            "FM 94.5 - Late Night Talk"
-        ),
-        listOf(
-            "FM 105.2 - Classic Rock & Pop",
-            "FM 91.1 - Morning Cruiser",
-            "FM 99.7 - Acoustic Waves",
-            "FM 107.3 - Weekend Vibes"
-        )
+        listOf("FM 96.4 - Kuantan Drive Radio", "FM 102.8 - Coastal Hits", "FM 88.9 - Chill & Jazz FM", "FM 94.5 - Late Night Talk"),
+        listOf("FM 105.2 - Classic Rock & Pop", "FM 91.1 - Morning Cruiser", "FM 99.7 - Acoustic Waves", "FM 107.3 - Weekend Vibes")
     )
 
     private val illuminationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action ?: return
-            when {
-                action.contains("ILLUM", ignoreCase = true) ||
-                    action.contains("LIGHT", ignoreCase = true) ||
-                    action.contains("HEADLIGHT", ignoreCase = true) -> {
-                    val stateInt = intent.getIntExtra("state", intent.getIntExtra("illum", -1))
-                    val stateBool = intent.getBooleanExtra("enabled", false)
-                    headlightSignalNight = when {
-                        stateInt == 1 -> true
-                        stateInt == 0 -> false
-                        intent.hasExtra("enabled") -> stateBool
-                        else -> headlightSignalNight
-                    }
-                    updateAutoDayNightTheme()
-                    updateSyncStatus()
+            if (action.contains("ILLUM", true) || action.contains("LIGHT", true) || action.contains("HEADLIGHT", true)) {
+                val stateInt = intent.getIntExtra("state", intent.getIntExtra("illum", -1))
+                val stateBool = intent.getBooleanExtra("enabled", false)
+                headlightSignalNight = when {
+                    stateInt == 1 -> true
+                    stateInt == 0 -> false
+                    intent.hasExtra("enabled") -> stateBool
+                    else -> headlightSignalNight
                 }
+                updateAutoDayNightTheme()
+                updateSyncStatus()
             }
         }
     }
@@ -121,7 +98,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         override fun onLocationChanged(location: Location) {
             currentLat = location.latitude
             currentLon = location.longitude
-
             val speedKmh = (location.speed * 3.6f).toInt().coerceAtLeast(0)
             if (speedKmh > maxSpeedKmh) maxSpeedKmh = speedKmh
 
@@ -158,9 +134,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             binding.tvBigClock.text = sdfTime.format(now)
             binding.tvDateLabel.text = "${sdfDate.format(now)} -${binding.surroundMapView.areaLabel}"
 
-            if (isPlaying) {
-                driveSeconds += 1
-            }
+            if (isPlaying) driveSeconds += 1
             val currentSpeed = binding.tvSpeed.text.toString().toIntOrNull() ?: 0
             updateTelemetryUi(currentSpeed)
             updateAutoDayNightTheme()
@@ -196,9 +170,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onResume()
         hideSystemBars()
         registerIlluminationReceiver()
-        lightSensor?.let { sensor ->
-            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-        }
+        lightSensor?.let { sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
         startLocationUpdates()
         updateAutoDayNightTheme()
         updateSyncStatus()
@@ -220,7 +192,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 addAction("com.android.systemui.ILLUM_CHANGE")
                 addAction("android.car.intent.action.ILLUMINATION_CHANGED")
             }
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(illuminationReceiver, filter, Context.RECEIVER_EXPORTED)
             } else {
                 @Suppress("UnspecifiedRegisterReceiverFlag")
@@ -242,9 +214,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun computeShouldBeNight(): Boolean {
         headlightSignalNight?.let { return it }
         val lux = lastLuxValue
-        if (lux != null) {
-            return lux < 25f
-        }
+        if (lux != null) return lux < 25f
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         return hour < 7 || hour >= 19
     }
@@ -285,31 +255,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun requestPermissionsIfNeeded() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 202)
         } else {
             startLocationUpdates()
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 202) {
-            startLocationUpdates()
-        }
+        if (requestCode == 202) startLocationUpdates()
     }
 
     private fun startLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) return
-
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         try {
             val lastKnown = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)
@@ -337,9 +296,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val geocoder = Geocoder(this, Locale.getDefault())
                 @Suppress("DEPRECATION")
                 val addresses = geocoder.getFromLocation(lat, lon, 1)
-                val road = addresses?.firstOrNull()?.let { addr ->
-                    addr.thoroughfare ?: addr.subLocality ?: addr.locality
-                }
+                val road = addresses?.firstOrNull()?.let { it.thoroughfare ?: it.subLocality ?: it.locality }
                 if (!road.isNullOrBlank()) {
                     runOnUiThread {
                         binding.surroundMapView.areaLabel = road
@@ -368,7 +325,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     val desc = weatherCodeToLabel(code)
                     if (!temp.isNaN()) {
                         runOnUiThread {
-                            binding.tvWeatherTemp.text = "${Math.round(temp)}C"
+                            binding.tvWeatherTemp.text = "${Math.round(temp)}°C"
                             binding.tvWeatherDesc.text = desc
                         }
                     }
@@ -390,8 +347,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         else -> "Synced"
     }
 
-    private fun activePlaylists(): List<List<String>> =
-        if (isRadioMode) radioPlaylists else ytmPlaylists
+    private fun activePlaylists(): List<List<String>> = if (isRadioMode) radioPlaylists else ytmPlaylists
 
     private fun currentPlaylist(): List<String> {
         val lists = activePlaylists()
@@ -399,14 +355,143 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun setupControls() {
-        binding.btnRestoreHome.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+        binding.btnRestoreHome.setOnClickListener { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) }
+        binding.btnApps.setOnClickListener { openIconAppsGridDialog() }
+        binding.btnNextList.setOnClickListener { advanceNextPlaylist() }
+        binding.btnPlayPause.setOnClickListener {
+            isPlaying = !isPlaying
+            if (!isRadioMode) sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
+            updateMusicQueueUi()
         }
+        binding.btnNextTrack.setOnClickListener { advanceNextTrack() }
+        binding.btnSwitchSource.setOnClickListener {
+            isRadioMode = !isRadioMode
+            playlistIndex = 0
+            trackIndex = 0
+            if (!isRadioMode && isPlaying) sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
+            else if (isRadioMode) sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
+            updateMusicQueueUi()
+        }
+    }
 
-        binding.btnApps.setOnClickListener {
-            openIconAppsGridDialog()
-        }
+    private fun advanceNextPlaylist() {
+        val lists = activePlaylists()
+        playlistIndex = (playlistIndex + 1) % lists.size
+        trackIndex = 0
+        isPlaying = true
+        if (!isRadioMode) sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+        updateMusicQueueUi()
+    }
 
-        binding.btnNextList.setOnClickListener {
-            advanceNextPlaylist()
+    private fun advanceNextTrack() {
+        val queue = currentPlaylist()
+        if (queue.isNotEmpty()) trackIndex = (trackIndex + 1) % queue.size
+        isPlaying = true
+        if (!isRadioMode) sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+        updateMusicQueueUi()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_MEDIA_NEXT -> {
+                advanceNextTrack()
+                true
+            }
+            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
+                val queue = currentPlaylist()
+                if (queue.isNotEmpty()) trackIndex = (trackIndex - 1 + queue.size) % queue.size
+                if (!isRadioMode) sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+                updateMusicQueueUi()
+                true
+            }
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                isPlaying = !isPlaying
+                if (!isRadioMode) sendMediaKey(keyCode)
+                updateMusicQueueUi()
+                true
+            }
+            else -> super.onKeyDown(keyCode, event)
         }
+    }
+
+    private fun sendMediaKey(keyCode: Int) {
+        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+    }
+
+    private fun updateMusicQueueUi() {
+        val queue = currentPlaylist()
+        val current = queue[trackIndex % queue.size]
+        val n1 = queue[(trackIndex + 1) % queue.size]
+        val n2 = queue[(trackIndex + 2) % queue.size]
+        val sourceTag = if (isRadioMode) "RADIO" else "YTM"
+        val stateIcon = if (isPlaying) "PLAY" else "PAUSE"
+
+        binding.tvTrack.text = "[$stateIcon] $sourceTag -$current"
+        binding.tvPlayNextList.text = "PlayNext: 1. $n1  \vert{}  2.$n2"
+        binding.btnPlayPause.text = if (isPlaying) "Pause" else "Play"
+        binding.btnSwitchSource.text = if (isRadioMode) "YTM" else "Radio"
+    }
+
+    private fun updateTelemetryUi(speedKmh: Int) {
+        val mins = driveSeconds / 60
+        val secs = driveSeconds % 60
+        val timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", mins, secs)
+        binding.tvSpeed.text = speedKmh.toString()
+        binding.tvOdoValue.text = "${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km"
+        binding.tvTripSub.text = "${String.format(Locale.getDefault(), "%.1f", tripKm)} km"
+        binding.tvDriveTimeValue.text = timeFormatted
+        binding.tvMaxSub.text = "MAX $maxSpeedKmh km/h"
+    }
+
+    private fun styleCard(view: View, cardColor: Int, borderColor: Int) {
+        val gd = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 14f * resources.displayMetrics.density
+            setColor(cardColor)
+            setStroke((1f * resources.displayMetrics.density).toInt(), borderColor)
+        }
+        view.background = gd
+    }
+
+    private fun applyTheme() {
+        binding.surroundMapView.isNightMode = isNightMode
+        val bgColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_bg else R.color.day_bg)
+        val cardColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_card else R.color.day_card)
+        val borderColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_border else R.color.day_border)
+        val textColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_text else R.color.day_text)
+        val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
+        val accentColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_accent else R.color.day_accent)
+        val pillColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_pill else R.color.day_pill)
+
+        binding.rootLayout.setBackgroundColor(bgColor)
+        styleCard(binding.clockWeatherCard, cardColor, borderColor)
+        styleCard(binding.telemetryCard, cardColor, borderColor)
+        styleCard(binding.mapCard, cardColor, borderColor)
+        styleCard(binding.musicCard, cardColor, borderColor)
+
+        val pillBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 999f
+            setColor(pillColor)
+        }
+        binding.tvStatusPill.background = pillBg
+
+        binding.tvBrand.setTextColor(accentColor)
+        binding.tvCardClockTitle.setTextColor(subColor)
+        binding.tvBigClock.setTextColor(textColor)
+        binding.tvDateLabel.setTextColor(subColor)
+        binding.tvWeatherTemp.setTextColor(accentColor)
+        binding.tvWeatherDesc.setTextColor(subColor)
+        binding.tvSpeedLabel.setTextColor(subColor)
+        binding.tvSpeed.setTextColor(accentColor)
+        binding.tvSpeedUnit.setTextColor(subColor)
+        binding.tvOdoLabel.setTextColor(subColor)
+        binding.tvOdoValue.setTextColor(textColor)
+        binding.tvTripSub.setTextColor(subColor)
+        binding.tvTripLabel.setTextColor(subColor)
+        binding.tvDriveTimeValue.setTextColor(textColor)
+        binding.tvMaxSub.setTextColor(subColor)
+        binding.tvMapTitle.setTextColor(textColor)
+        binding.tvLocationHeader.setTextColor(subColor)
