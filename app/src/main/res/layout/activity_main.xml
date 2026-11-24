@@ -40,10 +40,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:background="@color/night_pill"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
-            android:text="AUTO THEME • BT/NET SYNCING..."
+            android:background="@drawable/bg_pill_badge"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="5dp"
+            android:text="AUTO ILLUM • BT/NET SYNCING..."
             android:textColor="@color/night_subtext"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -56,7 +56,7 @@
         <Button
             android:id="@+id/btnRestoreHome"
             android:layout_width="wrap_content"
-            android:layout_height="42dp"
+            android:layout_height="40dp"
             android:text="Stock Home"
             android:textAllCaps="false"
             android:textSize="12sp" />
@@ -64,7 +64,7 @@
         <Button
             android:id="@+id/btnApps"
             android:layout_width="wrap_content"
-            android:layout_height="42dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
             android:text="Apps"
             android:textAllCaps="false"
@@ -89,7 +89,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1.15"
-            android:background="@color/night_card"
+            android:background="@drawable/bg_cockpit_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="16dp">
@@ -97,16 +97,26 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.25"
+                android:layout_weight="1.15"
                 android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvCardClockTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clock / Weather"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvBigClock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="22:00"
+                    android:layout_marginTop="2dp"
+                    android:text="22:03"
                     android:textColor="@color/night_text"
-                    android:textSize="54sp"
+                    android:textSize="48sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -115,13 +125,13 @@
                     android:layout_height="wrap_content"
                     android:text="Tue, 24 Nov • Kuantan"
                     android:textColor="@color/night_subtext"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.9"
+                android:layout_weight="0.95"
                 android:gravity="end|center_vertical"
                 android:orientation="vertical">
 
@@ -131,7 +141,7 @@
                     android:layout_height="wrap_content"
                     android:text="--°C"
                     android:textColor="@color/night_accent"
-                    android:textSize="30sp"
+                    android:textSize="32sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -151,16 +161,25 @@
             android:layout_height="0dp"
             android:layout_marginTop="12dp"
             android:layout_weight="1"
-            android:background="@color/night_card"
+            android:background="@drawable/bg_cockpit_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="16dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
+                android:layout_weight="0.85"
+                android:gravity="center"
                 android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvSpeedLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Speed"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvSpeed"
@@ -168,28 +187,90 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     android:textColor="@color/night_accent"
-                    android:textSize="48sp"
+                    android:textSize="38sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tvSpeedUnit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="KM/H"
                     android:textColor="@color/night_subtext"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvTripInfo"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="18dp"
-                android:layout_weight="1"
-                android:lineSpacingExtra="4dp"
-                android:text="ODO: 48,320 km\nTRIP: 0.0 km  |  MAX: 0 km/h\nDRIVE TIME: 00:00"
-                android:textColor="@color/night_text"
-                android:textSize="13sp" />
+                android:layout_marginStart="10dp"
+                android:layout_weight="1.05"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvOdoLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ODO"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvOdoValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="48,320 km"
+                    android:textColor="@color/night_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTripSub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="0.0 km"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1.05"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DRIVE TIME"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvDriveTimeValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="00:00"
+                    android:textColor="@color/night_text"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvMaxSub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="MAX 0 km/h"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
@@ -198,31 +279,40 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
-        android:background="@color/night_card"
+        android:background="@drawable/bg_cockpit_card"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:padding="14dp"
         app:layout_constraintBottom_toTopOf="@id/musicCard"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="0.95"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@id/leftCluster"
         app:layout_constraintTop_toBottomOf="@id/topBar">
+
+        <TextView
+            android:id="@+id/tvMapTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Live Surround Area Map"
+            android:textColor="@color/night_text"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvLocationHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Locating GPS &amp; Surrounding Roads..."
-            android:textColor="@color/night_text"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:text="Jalan Sekitar: Mengesan GPS..."
+            android:textColor="@color/night_subtext"
+            android:textSize="12sp" />
 
         <com.mycar.launcher.SurroundAreaMapView
             android:id="@+id/surroundMapView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:layout_weight="1" />
     </LinearLayout>
 
@@ -231,7 +321,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:background="@color/night_card"
+        android:background="@drawable/bg_cockpit_card"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="12dp"
@@ -241,9 +331,9 @@
 
         <ImageView
             android:id="@+id/ivMusicCarIcon"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginEnd="10dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="12dp"
             android:contentDescription="Car Music"
             android:src="@drawable/ic_car_logo" />
 
@@ -259,7 +349,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="YouTube Music • Syncing Queue..."
+                android:text="▶ YTM • Highway Breeze • Chill Acoustic"
                 android:textColor="@color/night_text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -268,10 +358,10 @@
                 android:id="@+id/tvPlayNextList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="2dp"
                 android:ellipsize="end"
-                android:maxLines="2"
-                android:text="PlayNext: 1. --  |  2. --  |  3. --"
+                android:maxLines="1"
+                android:text="PlayNext: 1. Synthwave Cruise  |  2. Lo-Fi Beats  |  3. Night Drive"
                 android:textColor="@color/night_subtext"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -279,14 +369,14 @@
         <Button
             android:id="@+id/btnPlayPause"
             android:layout_width="wrap_content"
-            android:layout_height="44dp"
+            android:layout_height="42dp"
             android:text="Play"
             android:textAllCaps="false" />
 
         <Button
             android:id="@+id/btnNextTrack"
             android:layout_width="wrap_content"
-            android:layout_height="44dp"
+            android:layout_height="42dp"
             android:layout_marginStart="8dp"
             android:text="Next"
             android:textAllCaps="false" />
@@ -294,7 +384,7 @@
         <Button
             android:id="@+id/btnOpenYTM"
             android:layout_width="wrap_content"
-            android:layout_height="44dp"
+            android:layout_height="42dp"
             android:layout_marginStart="8dp"
             android:text="YT Music"
             android:textAllCaps="false" />
