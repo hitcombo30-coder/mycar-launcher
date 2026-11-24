@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val ytmPlaylists = listOf(
         listOf(
-            "Highway Breeze • Chill Acoustic",
+            "Highway Breeze - Chill Acoustic",
             "Synthwave Cruise",
             "Lo-Fi Beats",
             "Night Drive"
@@ -82,16 +82,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val radioPlaylists = listOf(
         listOf(
-            "FM 96.4 • Kuantan Drive Radio",
-            "FM 102.8 • Coastal Hits",
-            "FM 88.9 • Chill & Jazz FM",
-            "FM 94.5 • Late Night Talk"
+            "FM 96.4 - Kuantan Drive Radio",
+            "FM 102.8 - Coastal Hits",
+            "FM 88.9 - Chill & Jazz FM",
+            "FM 94.5 - Late Night Talk"
         ),
         listOf(
-            "FM 105.2 • Classic Rock & Pop",
-            "FM 91.1 • Morning Cruiser",
-            "FM 99.7 • Acoustic Waves",
-            "FM 107.3 • Weekend Vibes"
+            "FM 105.2 - Classic Rock & Pop",
+            "FM 91.1 - Morning Cruiser",
+            "FM 99.7 - Acoustic Waves",
+            "FM 107.3 - Weekend Vibes"
         )
     )
 
@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val sdfDate = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
             val now = Date()
             binding.tvBigClock.text = sdfTime.format(now)
-            binding.tvDateLabel.text = "${sdfDate.format(now)} •${binding.surroundMapView.areaLabel}"
+            binding.tvDateLabel.text = "${sdfDate.format(now)} -${binding.surroundMapView.areaLabel}"
 
             if (isPlaying) {
                 driveSeconds += 1
@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             else -> "AUTO DAY"
         }
         val netTag = if (online) "BT/NET OK" else "WAITING BT/NET..."
-        binding.tvStatusPill.text = "$modeTag • $netTag"
+        binding.tvStatusPill.text = "$modeTag -$netTag"
     }
 
     private fun requestPermissionsIfNeeded() {
@@ -441,134 +441,3 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         if (!isRadioMode) {
             sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
         }
-        updateMusicQueueUi()
-    }
-
-    private fun advanceNextTrack() {
-        val queue = currentPlaylist()
-        if (queue.isNotEmpty()) {
-            trackIndex = (trackIndex + 1) % queue.size
-        }
-        isPlaying = true
-        if (!isRadioMode) {
-            sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
-        }
-        updateMusicQueueUi()
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_NEXT -> {
-                advanceNextTrack()
-                true
-            }
-            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
-                val queue = currentPlaylist()
-                if (queue.isNotEmpty()) {
-                    trackIndex = (trackIndex - 1 + queue.size) % queue.size
-                }
-                if (!isRadioMode) {
-                    sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-                }
-                updateMusicQueueUi()
-                true
-            }
-            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                isPlaying = !isPlaying
-                if (!isRadioMode) {
-                    sendMediaKey(keyCode)
-                }
-                updateMusicQueueUi()
-                true
-            }
-            else -> super.onKeyDown(keyCode, event)
-        }
-    }
-
-    private fun sendMediaKey(keyCode: Int) {
-        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
-    }
-
-    private fun updateMusicQueueUi() {
-        val queue = currentPlaylist()
-        val current = queue[trackIndex % queue.size]
-        val n1 = queue[(trackIndex + 1) % queue.size]
-        val n2 = queue[(trackIndex + 2) % queue.size]
-        val sourceTag = if (isRadioMode) "RADIO" else "YTM"
-        val stateIcon = if (isPlaying) "▶" else "❚❚"
-
-        binding.tvTrack.text = "$stateIcon $sourceTag • $current"
-        binding.tvPlayNextList.text = "PlayNext: 1. $n1  \vert{}  2.$n2"
-        binding.btnPlayPause.text = if (isPlaying) "Pause" else "Play"
-        binding.btnSwitchSource.text = if (isRadioMode) "YTM" else "Radio"
-    }
-
-    private fun updateTelemetryUi(speedKmh: Int) {
-        val mins = driveSeconds / 60
-        val secs = driveSeconds % 60
-        val timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", mins, secs)
-        binding.tvSpeed.text = speedKmh.toString()
-        binding.tvOdoValue.text = "${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km"
-        binding.tvTripSub.text = "${String.format(Locale.getDefault(), "%.1f", tripKm)} km"
-        binding.tvDriveTimeValue.text = timeFormatted
-        binding.tvMaxSub.text = "MAX $maxSpeedKmh km/h"
-    }
-
-    private fun styleCard(view: View, cardColor: Int, borderColor: Int) {
-        val gd = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 14f * resources.displayMetrics.density
-            setColor(cardColor)
-            setStroke((1f * resources.displayMetrics.density).toInt(), borderColor)
-        }
-        view.background = gd
-    }
-
-    private fun applyTheme() {
-        binding.surroundMapView.isNightMode = isNightMode
-        val bgColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_bg else R.color.day_bg)
-        val cardColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_card else R.color.day_card)
-        val borderColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_border else R.color.day_border)
-        val textColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_text else R.color.day_text)
-        val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
-        val accentColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_accent else R.color.day_accent)
-        val pillColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_pill else R.color.day_pill)
-
-        binding.rootLayout.setBackgroundColor(bgColor)
-        styleCard(binding.clockWeatherCard, cardColor, borderColor)
-        styleCard(binding.telemetryCard, cardColor, borderColor)
-        styleCard(binding.mapCard, cardColor, borderColor)
-        styleCard(binding.musicCard, cardColor, borderColor)
-
-        val pillBg = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 999f
-            setColor(pillColor)
-        }
-        binding.tvStatusPill.background = pillBg
-
-        binding.tvBrand.setTextColor(accentColor)
-        binding.tvCardClockTitle.setTextColor(subColor)
-        binding.tvBigClock.setTextColor(textColor)
-        binding.tvDateLabel.setTextColor(subColor)
-        binding.tvWeatherTemp.setTextColor(accentColor)
-        binding.tvWeatherDesc.setTextColor(subColor)
-        binding.tvSpeedLabel.setTextColor(subColor)
-        binding.tvSpeed.setTextColor(accentColor)
-        binding.tvSpeedUnit.setTextColor(subColor)
-        binding.tvOdoLabel.setTextColor(subColor)
-        binding.tvOdoValue.setTextColor(textColor)
-        binding.tvTripSub.setTextColor(subColor)
-        binding.tvTripLabel.setTextColor(subColor)
-        binding.tvDriveTimeValue.setTextColor(textColor)
-        binding.tvMaxSub.setTextColor(subColor)
-        binding.tvMapTitle.setTextColor(textColor)
-        binding.tvLocationHeader.setTextColor(subColor)
-        binding.tvTrack.setTextColor(textColor)
-        binding.tvPlayNextList.setTextColor(subColor)
-    }
-
-    private fun openIconAppsGridDialog() {
-        val mainIntent = Intent(Intent.
