@@ -134,6 +134,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
             lastLocation = location
 
+            if (location.hasBearing() && speedKmh > 1) {
+                binding.surroundMapView.bearing = location.bearing
+            }
             binding.surroundMapView.latitude = currentLat
             binding.surroundMapView.longitude = currentLon
             resolveRoadName(location.latitude, location.longitude)
@@ -365,7 +368,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     val desc = weatherCodeToLabel(code)
                     if (!temp.isNaN()) {
                         runOnUiThread {
-                            binding.tvWeatherTemp.text = "${Math.round(temp)}°C"
+                            binding.tvWeatherTemp.text = "${Math.round(temp)}C"
                             binding.tvWeatherDesc.text = desc
                         }
                     }
@@ -406,38 +409,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         binding.btnNextList.setOnClickListener {
             advanceNextPlaylist()
-        }
-
-        binding.btnPlayPause.setOnClickListener {
-            isPlaying = !isPlaying
-            if (!isRadioMode) {
-                sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
-            }
-            updateMusicQueueUi()
-        }
-
-        binding.btnNextTrack.setOnClickListener {
-            advanceNextTrack()
-        }
-
-        binding.btnSwitchSource.setOnClickListener {
-            isRadioMode = !isRadioMode
-            playlistIndex = 0
-            trackIndex = 0
-            if (!isRadioMode && isPlaying) {
-                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
-            } else if (isRadioMode) {
-                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
-            }
-            updateMusicQueueUi()
-        }
-    }
-
-    private fun advanceNextPlaylist() {
-        val lists = activePlaylists()
-        playlistIndex = (playlistIndex + 1) % lists.size
-        trackIndex = 0
-        isPlaying = true
-        if (!isRadioMode) {
-            sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
         }
