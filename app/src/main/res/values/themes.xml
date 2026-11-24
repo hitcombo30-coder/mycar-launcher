@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MYCAR" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowFullscreen">true</item>
+    <style name="Theme.MYCAR" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/night_bg</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:colorBackground">@color/night_bg</item>
+        <item name="colorPrimary">@color/night_accent</item>
+        <item name="colorPrimaryDark">@color/night_bg</item>
+        <item name="colorAccent">@color/night_accent</item>
     </style>
 </resources>
