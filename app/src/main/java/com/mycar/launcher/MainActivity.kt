@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val sdfDate = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
             val now = Date()
             binding.tvBigClock.text = sdfTime.format(now)
-            binding.tvDateLabel.text = "${sdfDate.format(now)} • ${binding.surroundMapView.areaLabel}"
+            binding.tvDateLabel.text = "${sdfDate.format(now)} •${binding.surroundMapView.areaLabel}"
 
             if (isPlaying) {
                 driveSeconds += 1
@@ -500,7 +500,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val stateIcon = if (isPlaying) "▶" else "❚❚"
 
         binding.tvTrack.text = "$stateIcon $sourceTag • $current"
-        binding.tvPlayNextList.text = "PlayNext: 1. $n1  |  2. $n2"
+        binding.tvPlayNextList.text = "PlayNext: 1. $n1  \vert{}  2.$n2"
         binding.btnPlayPause.text = if (isPlaying) "Pause" else "Play"
         binding.btnSwitchSource.text = if (isRadioMode) "YTM" else "Radio"
     }
@@ -571,38 +571,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun openIconAppsGridDialog() {
-        val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-        val appsList = packageManager.queryIntentActivities(mainIntent, 0)
-            .filter { it.activityInfo.packageName != packageName }
-            .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
-
-        val recyclerView = RecyclerView(this).apply {
-            layoutManager = GridLayoutManager(this@MainActivity, 4)
-            setPadding(16, 16, 16, 16)
-        }
-
-        var dialogRef: AlertDialog? = null
-        recyclerView.adapter = AppGridAdapter(appsList, isNightMode) { info ->
-            dialogRef?.dismiss()
-            val launchIntent = packageManager.getLaunchIntentForPackage(info.activityInfo.packageName)
-            if (launchIntent != null) {
-                startActivity(launchIntent)
-            }
-        }
-
-        dialogRef = AlertDialog.Builder(this)
-            .setTitle("MYCAR Apps")
-            .setView(recyclerView)
-            .setNegativeButton("Close", null)
-            .create()
-        dialogRef.show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacks(clockRunnable)
-        executor.shutdown()
-    }
-}
+        val mainIntent = Intent(Intent.
