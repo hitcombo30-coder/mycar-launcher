@@ -55,6 +55,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var headlightSignalNight: Boolean? = null
 
     private var mapLoadedOnce = false
+    private var lastActionTimestampMs = 0L
 
     private var isNightMode = true
     private var isRadioMode = false
@@ -78,15 +79,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             "Night Drive"
         ),
         listOf(
-            "Pantai Timur Acoustic",
+            "Coastal Highway Mix",
             "Midnight Express",
             "Smooth Lounge",
             "City Lights Mix"
         ),
         listOf(
-            "North-South Highway Mix",
-            "Sunset Cruiser",
-            "Deep Focus Drive",
+            "North-South Cruise",
+            "Sunset Drive",
+            "Deep Focus Beats",
             "After Midnight"
         )
     )
@@ -104,6 +105,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             if (action.contains("ILLUM", true) || action.contains("LIGHT", true) || action.contains("HEADLIGHT", true)) {
                 val stateInt = intent.getIntExtra("state", intent.getIntExtra("illum", -1))
                 val stateBool = intent.getBooleanExtra("enabled", false)
+                // Headlight ON = dark mode (true), Headlight OFF = bright mode (false)
                 headlightSignalNight = when {
                     stateInt == 1 -> true
                     stateInt == 0 -> false
@@ -150,11 +152,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val clockRunnable = object : Runnable {
         override fun run() {
-            val sdfTime = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val sdfDate = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
+            val sdfTime = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+            val sdfDate = SimpleDateFormat("EEE, dd MMM", Locale.ENGLISH)
             val now = Date()
             binding.tvBigClock.text = sdfTime.format(now)
-            binding.tvDateLabel.text = "${sdfDate.format(now)} - ${binding.tvLocationHeader.text.removePrefix("Lokasi: ")}"
+            val locClean = binding.tvLocationHeader.text.toString().removePrefix("Location: ")
+            binding.tvDateLabel.text = "${sdfDate.format(now)} - $locClean"
             binding.analogClockView.invalidate()
 
             val currentSpeed = binding.tvSpeed.text.toString().toIntOrNull() ?: 0
@@ -378,13 +381,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private fun resolveRoadName(lat: Double, lon: Double) {
         executor.execute {
             try {
-                val geocoder = Geocoder(this, Locale.getDefault())
+                val geocoder = Geocoder(this, Locale.ENGLISH)
                 @Suppress("DEPRECATION")
                 val addresses = geocoder.getFromLocation(lat, lon, 1)
                 val road = addresses?.firstOrNull()?.let { it.thoroughfare ?: it.subLocality ?: it.locality }
                 if (!road.isNullOrBlank()) {
                     runOnUiThread {
-                        binding.tvLocationHeader.text = "Lokasi: $road"
+                        binding.tvLocationHeader.text = "Location: $road"
                     }
                 }
             } catch (_: Exception) {
@@ -444,17 +447,30 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         else -> "Synced"
     }
 
+    private fun isDebouncedAction(): Boolean {
+        val now = System.currentTimeMillis()
+        if (now - lastActionTimestampMs < 220L) return true
+        lastActionTimestampMs = now
+        return false
+    }
+
     private fun currentYtmList(): List<String> = ytmPlaylists[playlistIndex % ytmPlaylists.size]
 
     private fun setupControls() {
-        binding.btnRestoreHome.setOnClickListener { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) }
-        binding.btnApps.setOnClickListener { openIconAppsGridDialog() }
+        binding.btnRestoreHome.setOnClickListener {
+            safeStartIntent(Intent(Settings.ACTION_HOME_SETTINGS))
+        }
+        binding.btnApps.setOnClickListener {
+            openIconAppsGridDialog()
+        }
 
         binding.btnNextList.setOnClickListener {
+            if (isDebouncedAction()) return@setOnClickListener
             advanceNextPlaylist()
         }
 
         binding.btnPlayPause.setOnClickListener {
+            if (isDebouncedAction()) return@setOnClickListener
             togglePlayPauseYtm()
         }
 
@@ -464,11 +480,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         binding.btnNextTrack.setOnClickListener {
+            if (isDebouncedAction()) return@setOnClickListener
             advanceNextTrack()
         }
 
         binding.btnSwitchSource.setOnClickListener {
+            if (isDebouncedAction()) return@setOnClickListener
             switchToRadioOrYtm()
+        }
+    }
+
+    private fun safeStartIntent(intent: Intent?) {
+        if (intent == null) return
+        handler.post {
+            try {
+                startActivity(intent)
+            } catch (_: Exception) {
+                Toast.makeText(this@MainActivity, "Unable to open app", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -477,8 +506,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             isRadioMode = true
             isPlaying = true
             trackIndex = 0
-            sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
             updateMusicQueueUi()
+            sendMediaKeySafe(KeyEvent.KEYCODE_MEDIA_PAUSE)
             launchCarAntennaRadio()
         } else {
             isRadioMode = false
@@ -489,41 +518,45 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun launchCarAntennaRadio() {
-        val mainIntent = Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
-        val resolved = packageManager.queryIntentActivities(mainIntent, 0)
-        val radioApp = resolved.firstOrNull { info ->
-            val label = info.loadLabel(packageManager).toString().lowercase()
-            val pkg = info.activityInfo.packageName.lowercase()
-            label.contains("radio") || label.contains("fm") || pkg.contains("radio") || pkg.contains("fm")
-        }
-        if (radioApp != null) {
-            val launch = packageManager.getLaunchIntentForPackage(radioApp.activityInfo.packageName)
-            if (launch != null) {
-                startActivity(launch)
-                return
+        try {
+            val mainIntent = Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
+            val resolved = packageManager.queryIntentActivities(mainIntent, 0)
+            val radioApp = resolved.firstOrNull { info ->
+                val label = info.loadLabel(packageManager).toString().lowercase(Locale.ENGLISH)
+                val pkg = info.activityInfo.packageName.lowercase(Locale.ENGLISH)
+                label.contains("radio") || label.contains("fm") || pkg.contains("radio") || pkg.contains("fm")
             }
+            if (radioApp != null) {
+                val launch = packageManager.getLaunchIntentForPackage(radioApp.activityInfo.packageName)
+                if (launch != null) {
+                    safeStartIntent(launch)
+                    return
+                }
+            }
+            Toast.makeText(this, "Antenna Radio mode active", Toast.LENGTH_SHORT).show()
+        } catch (_: Exception) {
+            Toast.makeText(this, "Antenna Radio mode active", Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(this, "Mod Radio (Antenna) aktif", Toast.LENGTH_SHORT).show()
     }
 
     private fun holdPlayYtm() {
         isRadioMode = false
         isPlaying = true
-        sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
         updateMusicQueueUi()
+        sendMediaKeySafe(KeyEvent.KEYCODE_MEDIA_PLAY)
         val ytmIntent = packageManager.getLaunchIntentForPackage("com.google.android.apps.youtube.music")
             ?: packageManager.getLaunchIntentForPackage("app.revanced.android.apps.youtube.music")
         if (ytmIntent != null) {
             ytmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            startActivity(ytmIntent)
+            safeStartIntent(ytmIntent)
         }
     }
 
     private fun togglePlayPauseYtm() {
         isRadioMode = false
         isPlaying = !isPlaying
-        sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
         updateMusicQueueUi()
+        sendMediaKeySafe(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
     }
 
     private fun advanceNextPlaylist() {
@@ -531,8 +564,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         playlistIndex = (playlistIndex + 1) % ytmPlaylists.size
         trackIndex = 0
         isPlaying = true
-        sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
         updateMusicQueueUi()
+        sendMediaKeySafe(KeyEvent.KEYCODE_MEDIA_NEXT)
     }
 
     private fun advanceNextTrack() {
@@ -542,7 +575,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val queue = currentYtmList()
             trackIndex = (trackIndex + 1) % queue.size
             isPlaying = true
-            sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+            sendMediaKeySafe(KeyEvent.KEYCODE_MEDIA_NEXT)
         }
         updateMusicQueueUi()
     }
@@ -557,8 +590,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 val queue = currentYtmList()
                 trackIndex = (trackIndex - 1 + queue.size) % queue.size
                 isRadioMode = false
-                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
                 updateMusicQueueUi()
+                sendMediaKeySafe(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
                 true
             }
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
@@ -569,10 +602,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
-    private fun sendMediaKey(keyCode: Int) {
-        val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-        am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+    private fun sendMediaKeySafe(keyCode: Int) {
+        handler.post {
+            try {
+                val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+                am.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+            } catch (_: Exception) {
+            }
+        }
     }
 
     private fun updateMusicQueueUi() {
@@ -601,7 +639,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         binding.tvSpeed.text = speedKmh.toString()
         binding.speedGaugeView.speedKmh = speedKmh.toFloat()
         binding.tvMaxSub.text = maxSpeedKmh.toString()
-        binding.tvAvgSub.text = String.format(Locale.getDefault(), "%.1f", avgKmh)
+        binding.tvAvgSub.text = String.format(Locale.ENGLISH, "%.1f", avgKmh)
     }
 
     private fun styleGlassCard(view: View, fillColor: Int, strokeColor: Int, radiusDp: Float = 18f) {
@@ -620,13 +658,13 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
         val accentColor = if (isNightMode) 0xFFE5C158.toInt() else 0xFFB45309.toInt()
 
-        val glassCardFill = if (isNightMode) 0xCC111827.toInt() else 0xE6FFFDF7.toInt()
-        val glassBadgeFill = if (isNightMode) 0xB31E293B.toInt() else 0xD9FEF3C7.toInt()
+        val glassCardFill = if (isNightMode) 0xA6111827.toInt() else 0xD9FFFDF7.toInt()
+        val glassBadgeFill = if (isNightMode) 0x991E293B.toInt() else 0xCCFEF3C7.toInt()
         val glassBtnFill = if (isNightMode) 0x99263248.toInt() else 0xCCFDE68A.toInt()
-        val glassStroke = if (isNightMode) 0x66E5C158.toInt() else 0x77B45309.toInt()
+        val glassStroke = if (isNightMode) 0x77E5C158.toInt() else 0x88B45309.toInt()
 
         binding.rootLayout.setBackgroundColor(bgColor)
-        binding.ivIslamicBg.alpha = if (isNightMode) 0.45f else 0.22f
+        binding.ivIslamicBg.alpha = if (isNightMode) 0.72f else 0.35f
 
         binding.analogClockView.ringColor = glassStroke
         binding.analogClockView.tickColor = textColor
@@ -677,7 +715,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val mainIntent = Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
         val appsList = packageManager.queryIntentActivities(mainIntent, 0)
             .filter { it.activityInfo.packageName != packageName }
-            .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
+            .sortedBy { it.loadLabel(packageManager).toString().lowercase(Locale.ENGLISH) }
 
         val recyclerView = RecyclerView(this).apply {
             layoutManager = GridLayoutManager(this@MainActivity, 4)
@@ -688,7 +726,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         recyclerView.adapter = AppGridAdapter(appsList, isNightMode) { info ->
             dialogRef?.dismiss()
             val launchIntent = packageManager.getLaunchIntentForPackage(info.activityInfo.packageName)
-            if (launchIntent != null) startActivity(launchIntent)
+            safeStartIntent(launchIntent)
         }
 
         dialogRef = AlertDialog.Builder(this)
@@ -701,7 +739,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(clockRunnable)
+        handler.removeCallbacksAndMessages(null)
         executor.shutdown()
     }
 }
