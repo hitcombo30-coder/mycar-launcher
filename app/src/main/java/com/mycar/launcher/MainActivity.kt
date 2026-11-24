@@ -24,7 +24,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.KeyEvent
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -53,8 +52,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var headlightSignalNight: Boolean? = null
 
     private var isNightMode = true
+    private var isRadioMode = false
     private var isPlaying = false
-    private var queueIndex = 0
+    private var playlistIndex = 0
+    private var trackIndex = 0
 
     private var odometerKm = 48320.0
     private var tripKm = 0.0
@@ -64,11 +65,34 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var currentLat: Double? = null
     private var currentLon: Double? = null
 
-    private val playNextQueue = mutableListOf(
-        "Synthwave Cruise",
-        "Lo-Fi Beats",
-        "Night Drive",
-        "Highway Breeze"
+    private val ytmPlaylists = listOf(
+        listOf(
+            "Highway Breeze • Chill Acoustic",
+            "Synthwave Cruise",
+            "Lo-Fi Beats",
+            "Night Drive"
+        ),
+        listOf(
+            "Pantai Timur Acoustic",
+            "Midnight Express",
+            "Smooth Lounge",
+            "City Lights Mix"
+        )
+    )
+
+    private val radioPlaylists = listOf(
+        listOf(
+            "FM 96.4 • Kuantan Drive Radio",
+            "FM 102.8 • Coastal Hits",
+            "FM 88.9 • Chill & Jazz FM",
+            "FM 94.5 • Late Night Talk"
+        ),
+        listOf(
+            "FM 105.2 • Classic Rock & Pop",
+            "FM 91.1 • Morning Cruiser",
+            "FM 99.7 • Acoustic Waves",
+            "FM 107.3 • Weekend Vibes"
+        )
     )
 
     private val illuminationReceiver = object : BroadcastReceiver() {
@@ -363,6 +387,14 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         else -> "Synced"
     }
 
+    private fun activePlaylists(): List<List<String>> =
+        if (isRadioMode) radioPlaylists else ytmPlaylists
+
+    private fun currentPlaylist(): List<String> {
+        val lists = activePlaylists()
+        return lists[playlistIndex % lists.size]
+    }
+
     private fun setupControls() {
         binding.btnRestoreHome.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
@@ -372,9 +404,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             openIconAppsGridDialog()
         }
 
+        binding.btnNextList.setOnClickListener {
+            advanceNextPlaylist()
+        }
+
         binding.btnPlayPause.setOnClickListener {
             isPlaying = !isPlaying
-            sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
+            if (!isRadioMode) {
+                sendMediaKey(if (isPlaying) KeyEvent.KEYCODE_MEDIA_PLAY else KeyEvent.KEYCODE_MEDIA_PAUSE)
+            }
             updateMusicQueueUi()
         }
 
@@ -382,17 +420,39 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             advanceNextTrack()
         }
 
-        binding.btnOpenYTM.setOnClickListener {
-            launchYouTubeMusic()
+        binding.btnSwitchSource.setOnClickListener {
+            isRadioMode = !isRadioMode
+            playlistIndex = 0
+            trackIndex = 0
+            if (!isRadioMode && isPlaying) {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY)
+            } else if (isRadioMode) {
+                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE)
+            }
+            updateMusicQueueUi()
         }
     }
 
+    private fun advanceNextPlaylist() {
+        val lists = activePlaylists()
+        playlistIndex = (playlistIndex + 1) % lists.size
+        trackIndex = 0
+        isPlaying = true
+        if (!isRadioMode) {
+            sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+        }
+        updateMusicQueueUi()
+    }
+
     private fun advanceNextTrack() {
-        if (playNextQueue.isNotEmpty()) {
-            queueIndex = (queueIndex + 1) % playNextQueue.size
+        val queue = currentPlaylist()
+        if (queue.isNotEmpty()) {
+            trackIndex = (trackIndex + 1) % queue.size
         }
         isPlaying = true
-        sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+        if (!isRadioMode) {
+            sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+        }
         updateMusicQueueUi()
     }
 
@@ -403,29 +463,25 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 true
             }
             KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
-                if (playNextQueue.isNotEmpty()) {
-                    queueIndex = (queueIndex - 1 + playNextQueue.size) % playNextQueue.size
+                val queue = currentPlaylist()
+                if (queue.isNotEmpty()) {
+                    trackIndex = (trackIndex - 1 + queue.size) % queue.size
                 }
-                sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+                if (!isRadioMode) {
+                    sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+                }
                 updateMusicQueueUi()
                 true
             }
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_MEDIA_PAUSE -> {
                 isPlaying = !isPlaying
-                sendMediaKey(keyCode)
+                if (!isRadioMode) {
+                    sendMediaKey(keyCode)
+                }
                 updateMusicQueueUi()
                 true
             }
             else -> super.onKeyDown(keyCode, event)
-        }
-    }
-
-    private fun launchYouTubeMusic() {
-        val ytmIntent = packageManager.getLaunchIntentForPackage("com.google.android.apps.youtube.music")
-        if (ytmIntent != null) {
-            startActivity(ytmIntent)
-        } else {
-            Toast.makeText(this, "YouTube Music not found on head unit", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -436,13 +492,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun updateMusicQueueUi() {
-        val current = playNextQueue[queueIndex]
-        val n1 = playNextQueue[(queueIndex + 1) % playNextQueue.size]
-        val n2 = playNextQueue[(queueIndex + 2) % playNextQueue.size]
+        val queue = currentPlaylist()
+        val current = queue[trackIndex % queue.size]
+        val n1 = queue[(trackIndex + 1) % queue.size]
+        val n2 = queue[(trackIndex + 2) % queue.size]
+        val sourceTag = if (isRadioMode) "RADIO" else "YTM"
+        val stateIcon = if (isPlaying) "▶" else "❚❚"
 
-        binding.tvTrack.text = if (isPlaying) "▶ YTM • $current" else "❚❚ YTM • $current"
+        binding.tvTrack.text = "$stateIcon $sourceTag • $current"
         binding.tvPlayNextList.text = "PlayNext: 1. $n1  |  2. $n2"
         binding.btnPlayPause.text = if (isPlaying) "Pause" else "Play"
+        binding.btnSwitchSource.text = if (isRadioMode) "YTM" else "Radio"
     }
 
     private fun updateTelemetryUi(speedKmh: Int) {
