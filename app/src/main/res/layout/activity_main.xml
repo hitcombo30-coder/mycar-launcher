@@ -43,7 +43,7 @@
             android:background="@drawable/bg_pill_badge"
             android:paddingHorizontal="12dp"
             android:paddingVertical="5dp"
-            android:text="AUTO ILLUM • BT/NET SYNCING..."
+            android:text="AUTO NIGHT - BT/NET SYNC"
             android:textColor="@color/night_subtext"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -57,7 +57,7 @@
             android:id="@+id/btnRestoreHome"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:text="Stock Home"
+            android:text="Home Settings"
             android:textAllCaps="false"
             android:textSize="12sp" />
 
@@ -88,7 +88,7 @@
             android:id="@+id/clockWeatherCard"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1.15"
+            android:layout_weight="1.18"
             android:background="@drawable/bg_cockpit_card"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -97,16 +97,17 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.15"
+                android:layout_weight="1.2"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvCardClockTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Clock / Weather"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="12sp"
+                    android:letterSpacing="0.08"
+                    android:text="COCKPIT TIME"
+                    android:textColor="@color/night_accent"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -114,44 +115,61 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="22:03"
+                    android:text="05:30"
                     android:textColor="@color/night_text"
-                    android:textSize="48sp"
+                    android:textSize="54sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvDateLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tue, 24 Nov • Kuantan"
+                    android:text="Wed, 25 Nov - Kuantan"
                     android:textColor="@color/night_subtext"
                     android:textSize="12sp" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/weatherBadgeBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:layout_weight="0.95"
+                android:background="@drawable/bg_weather_badge"
                 android:gravity="end|center_vertical"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <TextView
+                    android:id="@+id/tvWeatherIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.06"
+                    android:text="WEATHER"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvWeatherTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:text="--°C"
                     android:textColor="@color/night_accent"
-                    android:textSize="32sp"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvWeatherDesc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:gravity="end"
-                    android:text="Loading Weather..."
-                    android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
+                    android:text="Syncing..."
+                    android:textColor="@color/night_text"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
@@ -169,7 +187,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.85"
+                android:layout_weight="1.15"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -177,9 +195,10 @@
                     android:id="@+id/tvSpeedLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Speed"
+                    android:text="SPEED"
                     android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvSpeed"
@@ -187,7 +206,7 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     android:textColor="@color/night_accent"
-                    android:textSize="38sp"
+                    android:textSize="44sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -204,72 +223,72 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_weight="1.05"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvOdoLabel"
+                    android:id="@+id/tvMaxLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ODO"
+                    android:text="MAX SPEED"
                     android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tvOdoValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="48,320 km"
-                    android:textColor="@color/night_text"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvTripSub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="0.0 km"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_weight="1.05"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvTripLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="DRIVE TIME"
-                    android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tvDriveTimeValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="00:00"
-                    android:textColor="@color/night_text"
-                    android:textSize="18sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tvMaxSub"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="MAX 0 km/h"
+                    android:layout_marginTop="4dp"
+                    android:text="0"
+                    android:textColor="@color/night_text"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvMaxUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="KM/H"
                     android:textColor="@color/night_subtext"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAvgLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AVG SPEED"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvAvgSub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="0.0"
+                    android:textColor="@color/night_accent"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvAvgUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="KM/H"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -281,7 +300,7 @@
         android:layout_marginTop="12dp"
         android:background="@drawable/bg_cockpit_card"
         android:orientation="vertical"
-        android:padding="14dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toTopOf="@id/musicCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
@@ -292,9 +311,9 @@
             android:id="@+id/tvMapTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Live Surround Area Map"
+            android:text="OpenStreetMap Live"
             android:textColor="@color/night_text"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
@@ -304,15 +323,15 @@
             android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Jalan Sekitar: Mengesan GPS..."
+            android:text="Lokasi: Mengesan GPS..."
             android:textColor="@color/night_subtext"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
 
-        <com.mycar.launcher.SurroundAreaMapView
-            android:id="@+id/surroundMapView"
+        <WebView
+            android:id="@+id/osmWebView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:layout_weight="1" />
     </LinearLayout>
 
@@ -349,7 +368,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="▶ YTM • Highway Breeze • Chill Acoustic"
+                android:text="[PAUSE] YTM LIST #1 - Highway Breeze - Chill Acoustic"
                 android:textColor="@color/night_text"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -361,7 +380,7 @@
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="PlayNext: 1. Synthwave Cruise  |  2. Lo-Fi Beats"
+                android:text="Next: 1. Synthwave Cruise  |  2. Lo-Fi Beats"
                 android:textColor="@color/night_subtext"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -378,7 +397,7 @@
             android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_marginStart="8dp"
-            android:text="Pause"
+            android:text="Play"
             android:textAllCaps="false" />
 
         <Button
@@ -395,6 +414,14 @@
             android:layout_height="42dp"
             android:layout_marginStart="8dp"
             android:text="Radio"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnRadioApp"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Radio App"
             android:textAllCaps="false" />
     </LinearLayout>
 
