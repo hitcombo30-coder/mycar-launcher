@@ -192,16 +192,9 @@ class MainActivity : AppCompatActivity() {
         val secs = tripSeconds % 60
         val timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", mins, secs)
         binding.tvSpeed.text = speedKmh.toString()
-        binding.tvTripInfo.text = String.format(
-            Locale.getDefault(),
-            "ODO: %,d km
-TRIP: %.1f km  |  MAX: %d km/h
-TIME: %s",
-            odometerKm.toInt(),
-            tripKm,
-            maxSpeedKmh,
-            timeFormatted
-        )
+        binding.tvTripInfo.text = "ODO: ${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km\n" +
+            "TRIP: ${String.format(Locale.getDefault(), "%.1f", tripKm)} km  |  MAX: $maxSpeedKmh km/h\n" +
+            "TIME: $timeFormatted"
     }
 
     private fun applyTheme() {
