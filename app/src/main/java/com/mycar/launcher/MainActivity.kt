@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -172,14 +173,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val initialBg = ContextCompat.getColor(this, R.color.night_bg)
+        window.setBackgroundDrawable(ColorDrawable(initialBg))
         super.onCreate(savedInstanceState)
+        hideSystemBars()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.rootLayout.setBackgroundColor(initialBg)
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         lightSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_LIGHT)
 
-        hideSystemBars()
         setupOsmWebView()
         requestPermissionsIfNeeded()
         setupControls()
