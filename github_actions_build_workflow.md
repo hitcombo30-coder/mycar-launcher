@@ -1,0 +1,46 @@
+name: Build MYCAR APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Create wrapper if missing
+        run: |
+          if [ ! -f ./gradlew ]; then
+            gradle wrapper --gradle-version 8.7 --distribution-type bin
+          fi
+          chmod +x gradlew
+
+      - name: Assemble Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload MYCAR APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MYCAR-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
