@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="05:44"
+                    android:text="05:47"
                     android:textColor="@color/night_text"
                     android:textSize="54sp"
                     android:textStyle="bold" />
@@ -375,4 +375,60 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="[PAUSE] YTM LIST #1 - Highway Breeze - Chill Acoustic"
-                android:textColor
+                android:textColor="@color/night_text"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPlayNextList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Next: 1. Synthwave Cruise  |  2. Lo-Fi Beats"
+                android:textColor="@color/night_subtext"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnNextList"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:text="Next List"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnPlayPause"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Play"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnNextTrack"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Next"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnSwitchSource"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Radio"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnRadioApp"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Radio App"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
