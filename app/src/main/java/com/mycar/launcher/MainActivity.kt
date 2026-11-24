@@ -4,6 +4,10 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
@@ -29,15 +33,20 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.Executors
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var binding: ActivityMainBinding
     private val handler = Handler(Looper.getMainLooper())
     private val executor = Executors.newSingleThreadExecutor()
+
+    private var sensorManager: SensorManager? = null
+    private var lightSensor: Sensor? = null
+    private var lastLuxValue: Float? = null
 
     private var isNightMode = true
     private var isPlaying = false
@@ -102,6 +111,7 @@ class MainActivity : AppCompatActivity() {
             }
             val currentSpeed = binding.tvSpeed.text.toString().toIntOrNull() ?: 0
             updateTelemetryUi(currentSpeed)
+            updateAutoDayNightTheme()
             updateSyncStatus()
             handler.postDelayed(this, 1000L)
         }
@@ -112,15 +122,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        lightSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_LIGHT)
+
         hideSystemBars()
         requestPermissionsIfNeeded()
         setupControls()
         updateMusicQueueUi()
-        applyTheme()
+        updateAutoDayNightTheme()
 
-        // Allow 1-2 minute startup sync cycle for BT/network, GPS, weather & queue
         handler.postDelayed({
             fetchWeather(currentLat ?: 3.8168, currentLon ?: 103.3317)
+            updateAutoDayNightTheme()
             updateSyncStatus()
         }, 1500L)
 
@@ -130,8 +143,43 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         hideSystemBars()
+        lightSensor?.let { sensor ->
+            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
         startLocationUpdates()
+        updateAutoDayNightTheme()
         updateSyncStatus()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager?.unregisterListener(this)
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
+            lastLuxValue = event.values.firstOrNull()
+            updateAutoDayNightTheme()
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+    private fun computeShouldBeNight(): Boolean {
+        val lux = lastLuxValue
+        if (lux != null) {
+            return lux < 25f
+        }
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        return hour < 7 || hour >= 19
+    }
+
+    private fun updateAutoDayNightTheme() {
+        val shouldNight = computeShouldBeNight()
+        if (shouldNight != isNightMode || binding.tvStatusPill.text.isNullOrEmpty()) {
+            isNightMode = shouldNight
+            applyTheme()
+        }
     }
 
     private fun hideSystemBars() {
@@ -151,7 +199,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateSyncStatus() {
         val online = isNetworkAvailable()
-        binding.tvStatusPill.text = if (online) "BT/NET CONNECTED" else "WAITING BT/NET..."
+        val modeTag = if (isNightMode) "AUTO NIGHT" else "AUTO DAY"
+        val netTag = if (online) "BT/NET OK" else "WAITING BT/NET..."
+        binding.tvStatusPill.text = "$modeTag • $netTag"
     }
 
     private fun requestPermissionsIfNeeded() {
@@ -261,11 +311,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
-        binding.btnTheme.setOnClickListener {
-            isNightMode = !isNightMode
-            applyTheme()
-        }
-
         binding.btnRestoreHome.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
         }
@@ -353,10 +398,8 @@ class MainActivity : AppCompatActivity() {
         val secs = driveSeconds % 60
         val timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", mins, secs)
         binding.tvSpeed.text = speedKmh.toString()
-        binding.tvTripInfo.text = "ODO: ${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km
-" +
-            "TRIP: ${String.format(Locale.getDefault(), "%.1f", tripKm)} km  |  MAX: $maxSpeedKmh km/h
-" +
+        binding.tvTripInfo.text = "ODO: ${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km\n" +
+            "TRIP: ${String.format(Locale.getDefault(), "%.1f", tripKm)} km  |  MAX: $maxSpeedKmh km/h\n" +
             "DRIVE TIME: $timeFormatted"
     }
 
@@ -367,12 +410,14 @@ class MainActivity : AppCompatActivity() {
         val textColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_text else R.color.day_text)
         val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
         val accentColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_accent else R.color.day_accent)
+        val pillColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_pill else R.color.day_pill)
 
         binding.rootLayout.setBackgroundColor(bgColor)
         binding.clockWeatherCard.setBackgroundColor(cardColor)
         binding.telemetryCard.setBackgroundColor(cardColor)
         binding.mapCard.setBackgroundColor(cardColor)
         binding.musicCard.setBackgroundColor(cardColor)
+        binding.tvStatusPill.setBackgroundColor(pillColor)
 
         binding.tvBrand.setTextColor(accentColor)
         binding.tvBigClock.setTextColor(textColor)
@@ -384,7 +429,6 @@ class MainActivity : AppCompatActivity() {
         binding.tvLocationHeader.setTextColor(textColor)
         binding.tvTrack.setTextColor(textColor)
         binding.tvPlayNextList.setTextColor(subColor)
-        binding.btnTheme.text = if (isNightMode) "Day Mode" else "Night Mode"
     }
 
     private fun openIconAppsGridDialog() {
