@@ -5,100 +5,236 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/night_bg"
-    android:padding="16dp">
+    android:padding="14dp">
 
-    <TextView
-        android:id="@+id/tvBrand"
-        android:layout_width="wrap_content"
+    <!-- Top Cockpit Bar -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="MYCAR"
-        android:textColor="@color/night_text"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvClock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="20:56"
-        android:textColor="@color/night_subtext"
-        android:textSize="18sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/tvBrand"
-        app:layout_constraintStart_toEndOf="@id/tvBrand" />
-
-    <Button
-        android:id="@+id/btnTheme"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Night / Day"
-        app:layout_constraintEnd_toStartOf="@id/btnApps"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnApps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="Apps"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <com.mycar.launcher.HeadingUpMapView
-        android:id="@+id/headingMapView"
+        <TextView
+            android:id="@+id/tvBrand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.16"
+            android:text="MYCAR"
+            android:textColor="@color/night_accent"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvStatusPill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:background="@color/night_pill"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="BT/NET SYNCING..."
+            android:textColor="@color/night_subtext"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnRestoreHome"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:text="Stock Home"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Day Mode"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnApps"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginStart="8dp"
+            android:text="Apps"
+            android:textAllCaps="false"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Left Column: Big Clock + Weather/Temp + Speed & Trip -->
+    <LinearLayout
+        android:id="@+id/leftCluster"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="12dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/musicCard"
-        app:layout_constraintEnd_toStartOf="@id/telemetryCard"
+        app:layout_constraintEnd_toStartOf="@id/mapCard"
+        app:layout_constraintHorizontal_weight="1.15"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvBrand" />
+        app:layout_constraintTop_toBottomOf="@id/topBar">
 
+        <!-- Prominent Clock & Weather Card -->
+        <LinearLayout
+            android:id="@+id/clockWeatherCard"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.15"
+            android:background="@color/night_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.25"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvBigClock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="21:54"
+                    android:textColor="@color/night_text"
+                    android:textSize="54sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDateLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tue, 24 Nov • Kuantan"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.9"
+                android:gravity="end|center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvWeatherTemp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--°C"
+                    android:textColor="@color/night_accent"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvWeatherDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:text="Loading Weather..."
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Speed & Trip Telemetry Card -->
+        <LinearLayout
+            android:id="@+id/telemetryCard"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_weight="1"
+            android:background="@color/night_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/night_accent"
+                    android:textSize="48sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="KM/H"
+                    android:textColor="@color/night_subtext"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTripInfo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_weight="1"
+                android:lineSpacingExtra="4dp"
+                android:text="ODO: 48,320 km
+TRIP: 0.0 km  |  MAX: 0 km/h
+DRIVE TIME: 00:00"
+                android:textColor="@color/night_text"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Right Column: Compact Live Surround Area Map (No fake arrow/ahead text) -->
     <LinearLayout
-        android:id="@+id/telemetryCard"
-        android:layout_width="280dp"
+        android:id="@+id/mapCard"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:background="@color/night_card"
-        android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toTopOf="@id/musicCard"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvBrand">
+        app:layout_constraintHorizontal_weight="0.95"
+        app:layout_constraintStart_toEndOf="@id/leftCluster"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
 
         <TextView
-            android:id="@+id/tvSpeed"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvLocationHeader"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="0"
-            android:textColor="@color/night_accent"
-            android:textSize="64sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Locating GPS &amp; Surrounding Roads..."
+            android:textColor="@color/night_text"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="KM/H  •  AHEAD ↑"
-            android:textColor="@color/night_subtext"
-            android:textSize="13sp" />
-
-        <TextView
-            android:id="@+id/tvTripInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:text="ODO: 48,320 km
-TRIP: 0.0 km  |  MAX: 0 km/h
-TIME: 00:00"
-            android:textColor="@color/night_text"
-            android:textSize="14sp" />
+        <com.mycar.launcher.SurroundAreaMapView
+            android:id="@+id/surroundMapView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
+    <!-- Bottom Bar: YouTube Music + Next Track + PlayNext Queue List -->
     <LinearLayout
         android:id="@+id/musicCard"
         android:layout_width="0dp"
@@ -122,16 +258,21 @@ TIME: 00:00"
                 android:id="@+id/tvTrack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="YouTube Music • Ready"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="YouTube Music • Syncing Queue..."
                 android:textColor="@color/night_text"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvNextQueue"
+                android:id="@+id/tvPlayNextList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Next: Midnight Cruise • Highway Breeze • Night Drive"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="PlayNext: 1. --  |  2. --  |  3. --"
                 android:textColor="@color/night_subtext"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -139,22 +280,25 @@ TIME: 00:00"
         <Button
             android:id="@+id/btnPlayPause"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Play" />
+            android:layout_height="44dp"
+            android:text="Play"
+            android:textAllCaps="false" />
 
         <Button
             android:id="@+id/btnNextTrack"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
-            android:text="Next" />
+            android:text="Next"
+            android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/btnNextList"
+            android:id="@+id/btnOpenYTM"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_marginStart="8dp"
-            android:text="Next List" />
+            android:text="YT Music"
+            android:textAllCaps="false" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
