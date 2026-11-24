@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="05:30"
+                    android:text="05:35"
                     android:textColor="@color/night_text"
                     android:textSize="54sp"
                     android:textStyle="bold" />
@@ -187,7 +187,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.15"
+                android:layout_weight="1.35"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -206,7 +206,7 @@
                     android:layout_height="wrap_content"
                     android:text="0"
                     android:textColor="@color/night_accent"
-                    android:textSize="44sp"
+                    android:textSize="52sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -223,7 +223,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -233,7 +233,7 @@
                     android:layout_height="wrap_content"
                     android:text="MAX SPEED"
                     android:textColor="@color/night_subtext"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -243,7 +243,7 @@
                     android:layout_marginTop="4dp"
                     android:text="0"
                     android:textColor="@color/night_text"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -252,14 +252,14 @@
                     android:layout_height="wrap_content"
                     android:text="KM/H"
                     android:textColor="@color/night_subtext"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -269,7 +269,7 @@
                     android:layout_height="wrap_content"
                     android:text="AVG SPEED"
                     android:textColor="@color/night_subtext"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -279,7 +279,7 @@
                     android:layout_marginTop="4dp"
                     android:text="0.0"
                     android:textColor="@color/night_accent"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -288,7 +288,7 @@
                     android:layout_height="wrap_content"
                     android:text="KM/H"
                     android:textColor="@color/night_subtext"
-                    android:textSize="11sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
