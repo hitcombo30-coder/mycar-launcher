@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val sdfDate = SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
             val now = Date()
             binding.tvBigClock.text = sdfTime.format(now)
-            binding.tvDateLabel.text = "${sdfDate.format(now)} -${binding.tvLocationHeader.text.removePrefix("Lokasi: ")}"
+            binding.tvDateLabel.text = "${sdfDate.format(now)} - ${binding.tvLocationHeader.text.removePrefix("Lokasi: ")}"
 
             val currentSpeed = binding.tvSpeed.text.toString().toIntOrNull() ?: 0
             if (currentSpeed > 0) {
@@ -251,11 +251,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             <body>
               <div id="map"></div>
               <script>
-                var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([$lat,$lon], 16);
+                var map = L.map('map', { zoomControl: false, attributionControl: false }).setView([$lat, $lon], 16);
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
                 var iconHtml = '<div id="carArrow" class="car-arrow" style="transform: rotate(' + $bearing + 'deg);"></div>';
                 var carIcon = L.divIcon({ html: iconHtml, className: '', iconSize: [22, 24], iconAnchor: [11, 12] });
-                var marker = L.marker([$lat,$lon], { icon: carIcon }).addTo(map);
+                var marker = L.marker([$lat, $lon], { icon: carIcon }).addTo(map);
                 window.updateCarPos = function(newLat, newLon, newBearing) {
                   map.panTo([newLat, newLon], { animate: true, duration: 0.5 });
                   marker.setLatLng([newLat, newLon]);
@@ -343,7 +343,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             else -> "AUTO DAY"
         }
         val netTag = if (online) "BT/NET OK" else "WAITING BT/NET..."
-        binding.tvStatusPill.text = "$modeTag -$netTag"
+        binding.tvStatusPill.text = "$modeTag - $netTag"
     }
 
     private fun requestPermissionsIfNeeded() {
@@ -603,16 +603,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             val cur = queue[trackIndex % queue.size].label
             val n1 = queue[(trackIndex + 1) % queue.size].label
             val n2 = queue[(trackIndex + 2) % queue.size].label
-            binding.tvTrack.text = "[$stateIcon] RADIO LIST #${(playlistIndex \% radioPlaylists.size) + 1} -$cur"
-            binding.tvPlayNextList.text = "Next: 1. $n1  \vert{}  2.$n2"
+            binding.tvTrack.text = "[$stateIcon] RADIO LIST #${(playlistIndex % radioPlaylists.size) + 1} - $cur"
+            binding.tvPlayNextList.text = "Next: 1. $n1  |  2. $n2"
             binding.btnSwitchSource.text = "YTM"
         } else {
             val queue = currentYtmList()
             val cur = queue[trackIndex % queue.size]
             val n1 = queue[(trackIndex + 1) % queue.size]
             val n2 = queue[(trackIndex + 2) % queue.size]
-            binding.tvTrack.text = "[$stateIcon] YTM LIST #${(playlistIndex \% ytmPlaylists.size) + 1} -$cur"
-            binding.tvPlayNextList.text = "Next: 1. $n1  \vert{}  2.$n2"
+            binding.tvTrack.text = "[$stateIcon] YTM LIST #${(playlistIndex % ytmPlaylists.size) + 1} - $cur"
+            binding.tvPlayNextList.text = "Next: 1. $n1  |  2. $n2"
             binding.btnSwitchSource.text = "Radio"
         }
         binding.btnPlayPause.text = if (isPlaying) "Pause" else "Play"
@@ -640,4 +640,75 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val cardColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_card else R.color.day_card)
         val borderColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_border else R.color.day_border)
         val textColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_text else R.color.day_text)
-        val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day
+        val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
+        val accentColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_accent else R.color.day_accent)
+        val pillColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_pill else R.color.day_pill)
+
+        binding.rootLayout.setBackgroundColor(bgColor)
+        styleCard(binding.clockWeatherCard, cardColor, borderColor)
+        styleCard(binding.telemetryCard, cardColor, borderColor)
+        styleCard(binding.mapCard, cardColor, borderColor)
+        styleCard(binding.musicCard, cardColor, borderColor)
+
+        val pillBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 999f
+            setColor(pillColor)
+        }
+        binding.tvStatusPill.background = pillBg
+
+        binding.tvBrand.setTextColor(accentColor)
+        binding.tvCardClockTitle.setTextColor(accentColor)
+        binding.tvBigClock.setTextColor(textColor)
+        binding.tvDateLabel.setTextColor(subColor)
+        binding.tvWeatherIcon.setTextColor(subColor)
+        binding.tvWeatherTemp.setTextColor(accentColor)
+        binding.tvWeatherDesc.setTextColor(textColor)
+        binding.tvSpeedLabel.setTextColor(subColor)
+        binding.tvSpeed.setTextColor(accentColor)
+        binding.tvSpeedUnit.setTextColor(subColor)
+        binding.tvMaxLabel.setTextColor(subColor)
+        binding.tvMaxSub.setTextColor(textColor)
+        binding.tvMaxUnit.setTextColor(subColor)
+        binding.tvAvgLabel.setTextColor(subColor)
+        binding.tvAvgSub.setTextColor(accentColor)
+        binding.tvAvgUnit.setTextColor(subColor)
+        binding.tvMapTitle.setTextColor(textColor)
+        binding.tvLocationHeader.setTextColor(subColor)
+        binding.tvTrack.setTextColor(textColor)
+        binding.tvPlayNextList.setTextColor(subColor)
+    }
+
+    private fun openIconAppsGridDialog() {
+        val mainIntent = Intent(Intent.ACTION_MAIN, null).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
+        val appsList = packageManager.queryIntentActivities(mainIntent, 0)
+            .filter { it.activityInfo.packageName != packageName }
+            .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
+
+        val recyclerView = RecyclerView(this).apply {
+            layoutManager = GridLayoutManager(this@MainActivity, 4)
+            setPadding(16, 16, 16, 16)
+        }
+
+        var dialogRef: AlertDialog? = null
+        recyclerView.adapter = AppGridAdapter(appsList, isNightMode) { info ->
+            dialogRef?.dismiss()
+            val launchIntent = packageManager.getLaunchIntentForPackage(info.activityInfo.packageName)
+            if (launchIntent != null) startActivity(launchIntent)
+        }
+
+        dialogRef = AlertDialog.Builder(this)
+            .setTitle("MYCAR Apps")
+            .setView(recyclerView)
+            .setNegativeButton("Close", null)
+            .create()
+        dialogRef.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopRadioStream()
+        handler.removeCallbacks(clockRunnable)
+        executor.shutdown()
+    }
+}
