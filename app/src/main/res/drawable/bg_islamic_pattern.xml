@@ -18,11 +18,9 @@
         android:strokeWidth="1.2"
         android:fillColor="@android:color/transparent"
         android:pathData="M24,240 L24,120 C24,66 66,24 120,24 C174,24 216,66 216,120 L216,240" />
-    <circle
-        android:cx="120"
-        android:cy="120"
-        android:r="14"
+    <path
         android:strokeColor="#2B5876"
         android:strokeWidth="1.2"
-        android:fillColor="#0D1D2E" />
+        android:fillColor="#0D1D2E"
+        android:pathData="M106,120a14,14 0,1,0 28,0a14,14 0,1,0 -28,0z" />
 </vector>
