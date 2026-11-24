@@ -7,7 +7,6 @@
     android:background="@color/night_bg"
     android:padding="14dp">
 
-    <!-- Top Cockpit Bar -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -18,10 +17,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <ImageView
+            android:id="@+id/ivBrandLogo"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="MYCAR Logo"
+            android:src="@drawable/ic_car_logo" />
+
         <TextView
             android:id="@+id/tvBrand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:letterSpacing="0.16"
             android:text="MYCAR"
             android:textColor="@color/night_accent"
@@ -36,7 +43,7 @@
             android:background="@color/night_pill"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
-            android:text="BT/NET SYNCING..."
+            android:text="AUTO THEME • BT/NET SYNCING..."
             android:textColor="@color/night_subtext"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -55,15 +62,6 @@
             android:textSize="12sp" />
 
         <Button
-            android:id="@+id/btnTheme"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_marginStart="8dp"
-            android:text="Day Mode"
-            android:textAllCaps="false"
-            android:textSize="12sp" />
-
-        <Button
             android:id="@+id/btnApps"
             android:layout_width="wrap_content"
             android:layout_height="42dp"
@@ -73,7 +71,6 @@
             android:textSize="12sp" />
     </LinearLayout>
 
-    <!-- Left Column: Big Clock + Weather/Temp + Speed & Trip -->
     <LinearLayout
         android:id="@+id/leftCluster"
         android:layout_width="0dp"
@@ -87,7 +84,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/topBar">
 
-        <!-- Prominent Clock & Weather Card -->
         <LinearLayout
             android:id="@+id/clockWeatherCard"
             android:layout_width="match_parent"
@@ -108,7 +104,7 @@
                     android:id="@+id/tvBigClock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="21:54"
+                    android:text="22:00"
                     android:textColor="@color/night_text"
                     android:textSize="54sp"
                     android:textStyle="bold" />
@@ -149,7 +145,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Speed & Trip Telemetry Card -->
         <LinearLayout
             android:id="@+id/telemetryCard"
             android:layout_width="match_parent"
@@ -192,15 +187,12 @@
                 android:layout_marginStart="18dp"
                 android:layout_weight="1"
                 android:lineSpacingExtra="4dp"
-                android:text="ODO: 48,320 km
-TRIP: 0.0 km  |  MAX: 0 km/h
-DRIVE TIME: 00:00"
+                android:text="ODO: 48,320 km\nTRIP: 0.0 km  |  MAX: 0 km/h\nDRIVE TIME: 00:00"
                 android:textColor="@color/night_text"
                 android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Right Column: Compact Live Surround Area Map (No fake arrow/ahead text) -->
     <LinearLayout
         android:id="@+id/mapCard"
         android:layout_width="0dp"
@@ -234,7 +226,6 @@ DRIVE TIME: 00:00"
             android:layout_weight="1" />
     </LinearLayout>
 
-    <!-- Bottom Bar: YouTube Music + Next Track + PlayNext Queue List -->
     <LinearLayout
         android:id="@+id/musicCard"
         android:layout_width="0dp"
@@ -247,6 +238,14 @@ DRIVE TIME: 00:00"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/ivMusicCarIcon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="Car Music"
+            android:src="@drawable/ic_car_logo" />
 
         <LinearLayout
             android:layout_width="0dp"
