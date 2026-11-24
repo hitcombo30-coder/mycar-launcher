@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="day_bg">#EEF2F6</color>
-    <color name="day_card">#FFFFFF</color>
-    <color name="day_border">#CBD5E1</color>
-    <color name="day_text">#0F172A</color>
-    <color name="day_subtext">#475569</color>
-    <color name="day_accent">#0284C7</color>
-    <color name="day_pill">#E2E8F0</color>
+    <color name="night_bg">#070D16</color>
+    <color name="night_card">#101E30</color>
+    <color name="night_border">#66E5C158</color>
+    <color name="night_text">#F8FAFC</color>
+    <color name="night_subtext">#CBD5E1</color>
+    <color name="night_accent">#E5C158</color>
+    <color name="night_pill">#172C46</color>
 
-    <color name="night_bg">#05080F</color>
-    <color name="night_card">#0D1320</color>
-    <color name="night_border">#1E293B</color>
-    <color name="night_text">#F1F5F9</color>
-    <color name="night_subtext">#94A3B8</color>
-    <color name="night_accent">#38BDF8</color>
-    <color name="night_pill">#162032</color>
+    <color name="day_bg">#F4EFE6</color>
+    <color name="day_card">#FFFDF7</color>
+    <color name="day_border">#77B45309</color>
+    <color name="day_text">#1E293B</color>
+    <color name="day_subtext">#475569</color>
+    <color name="day_accent">#B45309</color>
+    <color name="day_pill">#FEF3C7</color>
 </resources>
