@@ -1,9 +1,12 @@
 package com.mycar.launcher
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var sensorManager: SensorManager? = null
     private var lightSensor: Sensor? = null
     private var lastLuxValue: Float? = null
+    private var headlightSignalNight: Boolean? = null
 
     private var isNightMode = true
     private var isPlaying = false
@@ -61,12 +65,33 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var currentLon: Double? = null
 
     private val playNextQueue = mutableListOf(
-        "Midnight Cruise • Synthwave",
-        "Highway Breeze • Chill Acoustic",
-        "Night Drive • Deep Focus",
-        "Kuantan Coast • Lo-Fi Beats",
-        "Late Express • Smooth House"
+        "Synthwave Cruise",
+        "Lo-Fi Beats",
+        "Night Drive",
+        "Highway Breeze"
     )
+
+    private val illuminationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action ?: return
+            when {
+                action.contains("ILLUM", ignoreCase = true) ||
+                    action.contains("LIGHT", ignoreCase = true) ||
+                    action.contains("HEADLIGHT", ignoreCase = true) -> {
+                    val stateInt = intent.getIntExtra("state", intent.getIntExtra("illum", -1))
+                    val stateBool = intent.getBooleanExtra("enabled", false)
+                    headlightSignalNight = when {
+                        stateInt == 1 -> true
+                        stateInt == 0 -> false
+                        intent.hasExtra("enabled") -> stateBool
+                        else -> headlightSignalNight
+                    }
+                    updateAutoDayNightTheme()
+                    updateSyncStatus()
+                }
+            }
+        }
+    }
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -143,6 +168,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         hideSystemBars()
+        registerIlluminationReceiver()
         lightSensor?.let { sensor ->
             sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
         }
@@ -154,6 +180,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         sensorManager?.unregisterListener(this)
+        try {
+            unregisterReceiver(illuminationReceiver)
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun registerIlluminationReceiver() {
+        try {
+            val filter = IntentFilter().apply {
+                addAction("android.intent.action.ILLUMINATION_CHANGED")
+                addAction("com.android.systemui.ILLUM_CHANGE")
+                addAction("android.car.intent.action.ILLUMINATION_CHANGED")
+            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(illuminationReceiver, filter, Context.RECEIVER_EXPORTED)
+            } else {
+                @Suppress("UnspecifiedRegisterReceiverFlag")
+                registerReceiver(illuminationReceiver, filter)
+            }
+        } catch (_: Exception) {
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -166,6 +213,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
     private fun computeShouldBeNight(): Boolean {
+        headlightSignalNight?.let { return it }
         val lux = lastLuxValue
         if (lux != null) {
             return lux < 25f
@@ -199,7 +247,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private fun updateSyncStatus() {
         val online = isNetworkAvailable()
-        val modeTag = if (isNightMode) "AUTO NIGHT" else "AUTO DAY"
+        val modeTag = when {
+            headlightSignalNight == true -> "LAMP NIGHT"
+            headlightSignalNight == false -> "LAMP DAY"
+            isNightMode -> "AUTO NIGHT"
+            else -> "AUTO DAY"
+        }
         val netTag = if (online) "BT/NET OK" else "WAITING BT/NET..."
         binding.tvStatusPill.text = "$modeTag • $netTag"
     }
@@ -386,10 +439,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val current = playNextQueue[queueIndex]
         val n1 = playNextQueue[(queueIndex + 1) % playNextQueue.size]
         val n2 = playNextQueue[(queueIndex + 2) % playNextQueue.size]
-        val n3 = playNextQueue[(queueIndex + 3) % playNextQueue.size]
 
         binding.tvTrack.text = if (isPlaying) "▶ YTM • $current" else "❚❚ YTM • $current"
-        binding.tvPlayNextList.text = "PlayNext: 1. $n1  |  2. $n2  |  3. $n3"
+        binding.tvPlayNextList.text = "PlayNext: 1. $n1  |  2. $n2"
         binding.btnPlayPause.text = if (isPlaying) "Pause" else "Play"
     }
 
@@ -398,35 +450,62 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val secs = driveSeconds % 60
         val timeFormatted = String.format(Locale.getDefault(), "%02d:%02d", mins, secs)
         binding.tvSpeed.text = speedKmh.toString()
-        binding.tvTripInfo.text = "ODO: ${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km\n" +
-            "TRIP: ${String.format(Locale.getDefault(), "%.1f", tripKm)} km  |  MAX: $maxSpeedKmh km/h\n" +
-            "DRIVE TIME: $timeFormatted"
+        binding.tvOdoValue.text = "${String.format(Locale.getDefault(), "%,d", odometerKm.toInt())} km"
+        binding.tvTripSub.text = "${String.format(Locale.getDefault(), "%.1f", tripKm)} km"
+        binding.tvDriveTimeValue.text = timeFormatted
+        binding.tvMaxSub.text = "MAX $maxSpeedKmh km/h"
+    }
+
+    private fun styleCard(view: View, cardColor: Int, borderColor: Int) {
+        val gd = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 14f * resources.displayMetrics.density
+            setColor(cardColor)
+            setStroke((1f * resources.displayMetrics.density).toInt(), borderColor)
+        }
+        view.background = gd
     }
 
     private fun applyTheme() {
         binding.surroundMapView.isNightMode = isNightMode
         val bgColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_bg else R.color.day_bg)
         val cardColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_card else R.color.day_card)
+        val borderColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_border else R.color.day_border)
         val textColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_text else R.color.day_text)
         val subColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_subtext else R.color.day_subtext)
         val accentColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_accent else R.color.day_accent)
         val pillColor = ContextCompat.getColor(this, if (isNightMode) R.color.night_pill else R.color.day_pill)
 
         binding.rootLayout.setBackgroundColor(bgColor)
-        binding.clockWeatherCard.setBackgroundColor(cardColor)
-        binding.telemetryCard.setBackgroundColor(cardColor)
-        binding.mapCard.setBackgroundColor(cardColor)
-        binding.musicCard.setBackgroundColor(cardColor)
-        binding.tvStatusPill.setBackgroundColor(pillColor)
+        styleCard(binding.clockWeatherCard, cardColor, borderColor)
+        styleCard(binding.telemetryCard, cardColor, borderColor)
+        styleCard(binding.mapCard, cardColor, borderColor)
+        styleCard(binding.musicCard, cardColor, borderColor)
+
+        val pillBg = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 999f
+            setColor(pillColor)
+        }
+        binding.tvStatusPill.background = pillBg
 
         binding.tvBrand.setTextColor(accentColor)
+        binding.tvCardClockTitle.setTextColor(subColor)
         binding.tvBigClock.setTextColor(textColor)
         binding.tvDateLabel.setTextColor(subColor)
         binding.tvWeatherTemp.setTextColor(accentColor)
         binding.tvWeatherDesc.setTextColor(subColor)
+        binding.tvSpeedLabel.setTextColor(subColor)
         binding.tvSpeed.setTextColor(accentColor)
-        binding.tvTripInfo.setTextColor(textColor)
-        binding.tvLocationHeader.setTextColor(textColor)
+        binding.tvSpeedUnit.setTextColor(subColor)
+        binding.tvOdoLabel.setTextColor(subColor)
+        binding.tvOdoValue.setTextColor(textColor)
+        binding.tvTripSub.setTextColor(subColor)
+        binding.tvTripLabel.setTextColor(subColor)
+        binding.tvDriveTimeValue.setTextColor(textColor)
+        binding.tvMaxSub.setTextColor(subColor)
+        binding.tvMapTitle.setTextColor(textColor)
+        binding.tvLocationHeader.setTextColor(subColor)
         binding.tvTrack.setTextColor(textColor)
         binding.tvPlayNextList.setTextColor(subColor)
     }
